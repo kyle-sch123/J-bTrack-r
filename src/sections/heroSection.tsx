@@ -14,7 +14,7 @@ export default function HeroSection() {
               Applications <span className="text-[#f78433]">Effortlessly</span>
             </h1>
             <p className="text-lg md:text-xl text-black/60 leading-relaxed">
-              Stay organized and never miss an opportunity. Manage all your job
+              Stay organized and never miss an opportunity. Manage all your j*b
               applications, interviews, and follow-ups in one intuitive
               platform.
             </p>
@@ -34,7 +34,7 @@ export default function HeroSection() {
               </div>
               <div>
                 <div className="text-2xl font-bold text-gray-900">50k+</div>
-                <div>Jobs Tracked</div>
+                <div>J*bs Tracked</div>
               </div>
               <div>
                 <div className="text-2xl font-bold text-gray-900">4.9★</div>
