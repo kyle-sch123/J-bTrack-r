@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@lottiefiles/dotlottie-react": "^0.17.5",
     "axios": "^1.11.0",
     "firebase": "^12.3.0",
     "lucide-react": "^0.536.0",

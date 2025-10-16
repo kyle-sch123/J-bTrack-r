@@ -11,9 +11,15 @@ import {
   Users,
   BarChart3,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import Navbar from "@/sections/navbar";
+import HeroSection from "@/sections/heroSection";
+import { useAuthStore } from "@/store/authStore";
 
 export default function LandingPage() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const router = useRouter();
+  const uid = useAuthStore((state) => state.uid);
 
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);
@@ -23,137 +29,21 @@ export default function LandingPage() {
     }
   };
 
+  const handleDashboardClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    if (uid) {
+      router.push("/dashboard");
+    } else {
+      router.push("/auth");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-white">
-      {/* Navbar */}
-      <nav className="fixed w-full bg-white/95 backdrop-blur-sm shadow-sm z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            {/* Logo */}
-            <div className="flex-shrink-0">
-              <a
-                href="/"
-                className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent"
-              >
-                YourBrand
-              </a>
-            </div>
-
-            {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center space-x-8">
-              <button
-                onClick={() => scrollToSection("features")}
-                className="text-gray-700 hover:text-indigo-600 transition"
-              >
-                Features
-              </button>
-              <button
-                onClick={() => scrollToSection("about")}
-                className="text-gray-700 hover:text-indigo-600 transition"
-              >
-                About
-              </button>
-              <button
-                onClick={() => scrollToSection("pricing")}
-                className="text-gray-700 hover:text-indigo-600 transition"
-              >
-                Pricing
-              </button>
-              <button
-                onClick={() => scrollToSection("contact")}
-                className="text-gray-700 hover:text-indigo-600 transition"
-              >
-                Contact
-              </button>
-              <a
-                href="/dashboard"
-                className="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition font-semibold"
-              >
-                Dashboard
-              </a>
-            </div>
-
-            {/* Mobile menu button */}
-            <div className="md:hidden">
-              <button
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="text-gray-700 hover:text-indigo-600 transition"
-              >
-                {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Mobile Navigation */}
-        {isMenuOpen && (
-          <div className="md:hidden bg-white border-t">
-            <div className="px-2 pt-2 pb-3 space-y-1">
-              <button
-                onClick={() => scrollToSection("features")}
-                className="block w-full text-left px-3 py-2 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 rounded-md transition"
-              >
-                Features
-              </button>
-              <button
-                onClick={() => scrollToSection("about")}
-                className="block w-full text-left px-3 py-2 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 rounded-md transition"
-              >
-                About
-              </button>
-              <button
-                onClick={() => scrollToSection("pricing")}
-                className="block w-full text-left px-3 py-2 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 rounded-md transition"
-              >
-                Pricing
-              </button>
-              <button
-                onClick={() => scrollToSection("contact")}
-                className="block w-full text-left px-3 py-2 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 rounded-md transition"
-              >
-                Contact
-              </button>
-              <a
-                href="/dashboard"
-                className="block px-3 py-2 bg-indigo-600 text-white text-center rounded-md hover:bg-indigo-700 transition font-semibold"
-              >
-                Dashboard
-              </a>
-            </div>
-          </div>
-        )}
-      </nav>
-
+      {/*N A V B A R */}
+      <Navbar />
       {/* Hero Section */}
-      <section className="pt-32 pb-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-indigo-50 via-white to-purple-50">
-        <div className="max-w-7xl mx-auto text-center">
-          <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-gray-900 mb-6">
-            Transform Your Business
-            <span className="block bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-              With Modern Solutions
-            </span>
-          </h1>
-          <p className="text-xl text-gray-600 mb-10 max-w-3xl mx-auto">
-            Streamline your workflow, boost productivity, and achieve more with
-            our powerful platform designed for modern teams.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <a
-              href="/auth"
-              className="bg-indigo-600 text-white px-8 py-4 rounded-lg hover:bg-indigo-700 transition font-semibold text-lg inline-flex items-center justify-center"
-            >
-              Get Started Free
-              <ArrowRight className="ml-2" size={20} />
-            </a>
-            <button
-              onClick={() => scrollToSection("features")}
-              className="bg-white text-indigo-600 border-2 border-indigo-600 px-8 py-4 rounded-lg hover:bg-indigo-50 transition font-semibold text-lg"
-            >
-              Learn More
-            </button>
-          </div>
-        </div>
-      </section>
+      <HeroSection />
 
       {/* Features Section */}
       <section id="features" className="py-20 px-4 sm:px-6 lg:px-8 bg-white">
@@ -429,7 +319,7 @@ export default function LandingPage() {
           <p className="text-xl text-gray-600 mb-10">
             Have questions? We'd love to hear from you.
           </p>
-          <form className="space-y-6">
+          <div className="space-y-6">
             <div className="grid md:grid-cols-2 gap-6">
               <input
                 type="text"
@@ -447,13 +337,10 @@ export default function LandingPage() {
               placeholder="Your Message"
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
             ></textarea>
-            <button
-              type="submit"
-              className="bg-indigo-600 text-white px-8 py-3 rounded-lg hover:bg-indigo-700 transition font-semibold text-lg"
-            >
+            <button className="bg-indigo-600 text-white px-8 py-3 rounded-lg hover:bg-indigo-700 transition font-semibold text-lg">
               Send Message
             </button>
-          </form>
+          </div>
         </div>
       </section>
 
