@@ -101,21 +101,30 @@ export default function LandingPage() {
       {/* Hero Section */}
       <HeroSection />
       {/* Features Section */}
+
       <section
         id="features"
-        className="py-20 px-4 sm:px-6 lg:px-8 bg-[#fcf0e7]"
+        className="py-20 px-4 sm:px-6 lg:px-8 bg-[#fff7ed]"
       >
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-2xl md:text-4xl font-bold text-[#f78433] mb-4">
-              Everything You Need to Land Your Next J*b
+          {/* Header */}
+          <div className="text-center mb-20">
+            <div className="inline-block mb-4">
+              <span className="text-sm font-semibold text-[#f78433] bg-orange-50 px-4 py-2 rounded-full">
+                Features
+              </span>
+            </div>
+            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4 leading-tight">
+              Everything You Need to Land{" "}
+              <span className="text-[#f78433]">Your Next Job</span>
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Powerful features designed to streamline your j*b search and
+              Powerful features designed to streamline your job search and
               maximize your success rate.
             </p>
           </div>
 
+          {/* Features Grid */}
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {features.map((feature, index) => {
               // Define color schemes for each feature
@@ -124,59 +133,89 @@ export default function LandingPage() {
                   bg: "bg-blue-50",
                   icon: "text-blue-600",
                   hover: "hover:border-blue-200",
+                  hoverBg: "group-hover:bg-blue-100",
                 },
                 {
                   bg: "bg-orange-50",
                   icon: "text-orange-600",
                   hover: "hover:border-orange-200",
+                  hoverBg: "group-hover:bg-orange-100",
                 },
                 {
                   bg: "bg-green-50",
                   icon: "text-green-600",
                   hover: "hover:border-green-200",
+                  hoverBg: "group-hover:bg-green-100",
                 },
                 {
                   bg: "bg-purple-50",
                   icon: "text-purple-600",
                   hover: "hover:border-purple-200",
+                  hoverBg: "group-hover:bg-purple-100",
                 },
                 {
                   bg: "bg-amber-50",
                   icon: "text-amber-600",
                   hover: "hover:border-amber-200",
+                  hoverBg: "group-hover:bg-amber-100",
                 },
                 {
                   bg: "bg-indigo-50",
                   icon: "text-indigo-600",
                   hover: "hover:border-indigo-200",
+                  hoverBg: "group-hover:bg-indigo-100",
                 },
               ];
 
               const colors = colorSchemes[index % colorSchemes.length];
 
               return (
-                <Card
-                  key={index}
-                  className={`border border-gray-100 ${colors.hover} shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1`}
-                >
-                  <CardHeader>
-                    <div
-                      className={`w-14 h-14 rounded-xl flex items-center justify-center mb-4 ${colors.bg} shadow-sm`}
-                    >
-                      <feature.icon className={`h-7 w-7 ${colors.icon}`} />
-                    </div>
-                    <CardTitle className="text-gray-900 mb-2">
-                      {feature.title}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <CardDescription className="text-base text-gray-600 leading-relaxed">
-                      {feature.description}
-                    </CardDescription>
-                  </CardContent>
-                </Card>
+                <div key={index} className="group">
+                  <Card
+                    className={`h-full border-2 border-gray-100 ${colors.hover} shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2`}
+                  >
+                    <CardHeader>
+                      <div
+                        className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-6 ${colors.bg} ${colors.hoverBg} shadow-sm transition-colors`}
+                      >
+                        <feature.icon className={`h-8 w-8 ${colors.icon}`} />
+                      </div>
+                      <CardTitle className="text-2xl text-gray-900 mb-3">
+                        {feature.title}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <CardDescription className="text-base text-gray-600 leading-relaxed">
+                        {feature.description}
+                      </CardDescription>
+                    </CardContent>
+                  </Card>
+                </div>
               );
             })}
+          </div>
+
+          {/* Bottom CTA */}
+          <div className="mt-16 text-center">
+            <p className="text-gray-600 mb-6">
+              Ready to streamline your job search?
+            </p>
+            <button className="bg-gradient-to-r from-[#f78433] to-[#ff6b35] text-white px-8 py-4 rounded-xl hover:shadow-xl transition-all duration-300 font-semibold text-lg transform hover:scale-105 inline-flex items-center gap-2">
+              Get Started Free
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M13 7l5 5m0 0l-5 5m5-5H6"
+                />
+              </svg>
+            </button>
           </div>
         </div>
       </section>
