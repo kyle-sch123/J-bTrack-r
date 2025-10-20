@@ -241,10 +241,11 @@ export default function AuthPage() {
                   placeholder="Email address"
                 />
               </div>
-              <div>
+              <div className="relative group">
                 <input
                   id="password"
                   type="password"
+                  about="enter your password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
@@ -252,15 +253,15 @@ export default function AuthPage() {
                   className="w-full px-4 py-3 text-black border border-gray-300 rounded-2xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
                   placeholder="••••••••"
                 />
+                <div className="absolute left-0 bottom-full mb-2 hidden group-hover:block group-focus-within:block w-full">
+                  <div className="bg-gray-900 text-white text-sm rounded-lg py-2 px-3 shadow-lg">
+                    Password must be at least 6 characters long
+                    <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-gray-900"></div>
+                  </div>
+                </div>
               </div>
               {!isLogin && (
-                <div>
-                  <label
-                    htmlFor="confirmPassword"
-                    className="block text-sm font-medium text-gray-700 mb-2"
-                  >
-                    Confirm Password
-                  </label>
+                <div className="relative group">
                   <input
                     id="confirmPassword"
                     type="password"
@@ -268,9 +269,15 @@ export default function AuthPage() {
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     required
                     minLength={6}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
+                    className="w-full px-4 py-3 text-black border border-gray-300 rounded-2xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
                     placeholder="••••••••"
                   />
+                  <div className="absolute left-0 bottom-full mb-2 hidden group-hover:block group-focus-within:block w-full">
+                    <div className="bg-gray-900 text-white text-sm rounded-lg py-2 px-3 shadow-lg">
+                      Re-enter your password to confirm
+                      <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-gray-900"></div>
+                    </div>
+                  </div>
                 </div>
               )}
 

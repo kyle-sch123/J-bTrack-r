@@ -101,7 +101,6 @@ export default function LandingPage() {
       {/* Hero Section */}
       <HeroSection />
       {/* Features Section */}
-
       <section
         id="features"
         className="py-20 px-4 sm:px-6 lg:px-8 bg-[#fff7ed]"
@@ -176,11 +175,11 @@ export default function LandingPage() {
                   >
                     <CardHeader>
                       <div
-                        className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-6 ${colors.bg} ${colors.hoverBg} shadow-sm transition-colors`}
+                        className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-5 ${colors.bg} ${colors.hoverBg} shadow-sm transition-colors`}
                       >
                         <feature.icon className={`h-8 w-8 ${colors.icon}`} />
                       </div>
-                      <CardTitle className="text-2xl text-gray-900 mb-3">
+                      <CardTitle className="text-2xl text-gray-900">
                         {feature.title}
                       </CardTitle>
                     </CardHeader>
@@ -193,29 +192,6 @@ export default function LandingPage() {
                 </div>
               );
             })}
-          </div>
-
-          {/* Bottom CTA */}
-          <div className="mt-16 text-center">
-            <p className="text-gray-600 mb-6">
-              Ready to streamline your job search?
-            </p>
-            <button className="bg-gradient-to-r from-[#f78433] to-[#ff6b35] text-white px-8 py-4 rounded-xl hover:shadow-xl transition-all duration-300 font-semibold text-lg transform hover:scale-105 inline-flex items-center gap-2">
-              Get Started Free
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M13 7l5 5m0 0l-5 5m5-5H6"
-                />
-              </svg>
-            </button>
           </div>
         </div>
       </section>
