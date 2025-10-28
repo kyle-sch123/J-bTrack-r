@@ -15,6 +15,8 @@ import {
   FileText,
   AlertCircle,
   CheckCircle,
+  Sparkles,
+  TrendingUp,
 } from "lucide-react";
 
 import { useAuthStore } from "@/store/authStore";
@@ -127,150 +129,184 @@ const JobApplicationModal: React.FC<{
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
-        <div className="p-6">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-bold text-gray-900">
-              {initialData ? "Edit Job Application" : "Add New Job Application"}
-            </h2>
-            <button
-              onClick={onClose}
-              className="text-gray-400 hover:text-gray-600"
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
+      <div className="bg-white rounded-3xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto border border-gray-100 animate-in zoom-in-95 duration-200">
+        {/* Modal Header */}
+        <div className="relative bg-gradient-to-r from-[#f78433] to-[#ff6b35] p-6 rounded-t-3xl">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16"></div>
+          <div className="relative z-10">
+            <div className="flex justify-between items-start mb-2">
+              <div>
+                <h2 className="text-2xl font-bold text-white mb-1">
+                  {initialData ? "Edit Application" : "New Application"}
+                </h2>
+                <p className="text-orange-100 text-sm">
+                  {initialData
+                    ? "Update your application details"
+                    : "Add a new job to track"}
+                </p>
+              </div>
+              <button
+                onClick={onClose}
+                className="text-white/80 hover:text-white hover:bg-white/20 p-2 rounded-xl transition-all"
+                disabled={loading}
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Modal Body */}
+        <form onSubmit={handleSubmit} className="p-6 space-y-5">
+          <div>
+            <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
+              <div className="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center">
+                <Briefcase className="h-4 w-4 text-blue-600" />
+              </div>
+              Job Title *
+            </label>
+            <input
+              type="text"
+              value={formData.JobTitle}
+              onChange={(e) => handleInputChange("JobTitle", e.target.value)}
+              className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#f78433]/20 transition-all ${
+                errors.JobTitle
+                  ? "border-red-300 bg-red-50"
+                  : "border-gray-200 hover:border-gray-300 focus:border-[#f78433]"
+              }`}
+              placeholder="e.g., Senior Frontend Developer"
               disabled={loading}
-            >
-              <X className="h-5 w-5" />
-            </button>
+            />
+            {errors.JobTitle && (
+              <p className="text-red-500 text-sm mt-2 flex items-center gap-1 bg-red-50 p-2 rounded-lg">
+                <AlertCircle className="h-4 w-4" />
+                {errors.JobTitle}
+              </p>
+            )}
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                <Briefcase className="inline h-4 w-4 mr-1" />
-                Job Title *
-              </label>
-              <input
-                type="text"
-                value={formData.JobTitle}
-                onChange={(e) => handleInputChange("JobTitle", e.target.value)}
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  errors.JobTitle ? "border-red-500" : "border-gray-300"
-                }`}
-                placeholder="e.g., Senior Frontend Developer"
-                disabled={loading}
-              />
-              {errors.JobTitle && (
-                <p className="text-red-500 text-xs mt-1 flex items-center">
-                  <AlertCircle className="h-3 w-3 mr-1" />
-                  {errors.JobTitle}
-                </p>
+          <div>
+            <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
+              <div className="w-8 h-8 bg-purple-50 rounded-lg flex items-center justify-center">
+                <Building className="h-4 w-4 text-purple-600" />
+              </div>
+              Company *
+            </label>
+            <input
+              type="text"
+              value={formData.Company}
+              onChange={(e) => handleInputChange("Company", e.target.value)}
+              className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#f78433]/20 transition-all ${
+                errors.Company
+                  ? "border-red-300 bg-red-50"
+                  : "border-gray-200 hover:border-gray-300 focus:border-[#f78433]"
+              }`}
+              placeholder="e.g., Google, Microsoft, etc."
+              disabled={loading}
+            />
+            {errors.Company && (
+              <p className="text-red-500 text-sm mt-2 flex items-center gap-1 bg-red-50 p-2 rounded-lg">
+                <AlertCircle className="h-4 w-4" />
+                {errors.Company}
+              </p>
+            )}
+          </div>
+
+          <div>
+            <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
+              <div className="w-8 h-8 bg-green-50 rounded-lg flex items-center justify-center">
+                <TrendingUp className="h-4 w-4 text-green-600" />
+              </div>
+              Status
+            </label>
+            <select
+              value={formData.Status}
+              onChange={(e) => handleInputChange("Status", e.target.value)}
+              className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#f78433]/20 focus:border-[#f78433] hover:border-gray-300 transition-all bg-white"
+              disabled={loading}
+            >
+              {STATUS_OPTIONS.map((status) => (
+                <option key={status} value={status}>
+                  {status}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
+              <div className="w-8 h-8 bg-amber-50 rounded-lg flex items-center justify-center">
+                <Calendar className="h-4 w-4 text-amber-600" />
+              </div>
+              Application Date *
+            </label>
+            <input
+              type="date"
+              value={formData.ApplicationDate}
+              onChange={(e) =>
+                handleInputChange("ApplicationDate", e.target.value)
+              }
+              className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#f78433]/20 transition-all ${
+                errors.ApplicationDate
+                  ? "border-red-300 bg-red-50"
+                  : "border-gray-200 hover:border-gray-300 focus:border-[#f78433]"
+              }`}
+              disabled={loading}
+            />
+            {errors.ApplicationDate && (
+              <p className="text-red-500 text-sm mt-2 flex items-center gap-1 bg-red-50 p-2 rounded-lg">
+                <AlertCircle className="h-4 w-4" />
+                {errors.ApplicationDate}
+              </p>
+            )}
+          </div>
+
+          <div>
+            <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
+              <div className="w-8 h-8 bg-indigo-50 rounded-lg flex items-center justify-center">
+                <FileText className="h-4 w-4 text-indigo-600" />
+              </div>
+              Notes
+            </label>
+            <textarea
+              value={formData.Notes}
+              onChange={(e) => handleInputChange("Notes", e.target.value)}
+              rows={4}
+              className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#f78433]/20 focus:border-[#f78433] hover:border-gray-300 transition-all resize-none"
+              placeholder="Any additional notes about this application..."
+              disabled={loading}
+            />
+          </div>
+
+          <div className="flex gap-3 pt-4">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 px-6 py-3 text-gray-700 bg-gray-100 rounded-xl hover:bg-gray-200 disabled:opacity-50 transition-all font-semibold"
+              disabled={loading}
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="flex-1 px-6 py-3 bg-gradient-to-r from-[#f78433] to-[#ff6b35] text-white rounded-xl hover:shadow-lg disabled:opacity-50 transition-all font-semibold flex items-center justify-center gap-2"
+              disabled={loading}
+            >
+              {loading ? (
+                <>
+                  <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
+                  <span>Saving...</span>
+                </>
+              ) : (
+                <>
+                  <Save className="h-5 w-5" />
+                  {initialData ? "Update" : "Create"}
+                </>
               )}
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                <Building className="inline h-4 w-4 mr-1" />
-                Company *
-              </label>
-              <input
-                type="text"
-                value={formData.Company}
-                onChange={(e) => handleInputChange("Company", e.target.value)}
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  errors.Company ? "border-red-500" : "border-gray-300"
-                }`}
-                placeholder="e.g., Google, Microsoft, etc."
-                disabled={loading}
-              />
-              {errors.Company && (
-                <p className="text-red-500 text-xs mt-1 flex items-center">
-                  <AlertCircle className="h-3 w-3 mr-1" />
-                  {errors.Company}
-                </p>
-              )}
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Status
-              </label>
-              <select
-                value={formData.Status}
-                onChange={(e) => handleInputChange("Status", e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                disabled={loading}
-              >
-                {STATUS_OPTIONS.map((status) => (
-                  <option key={status} value={status}>
-                    {status}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                <Calendar className="inline h-4 w-4 mr-1" />
-                Application Date *
-              </label>
-              <input
-                type="date"
-                value={formData.ApplicationDate}
-                onChange={(e) =>
-                  handleInputChange("ApplicationDate", e.target.value)
-                }
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  errors.ApplicationDate ? "border-red-500" : "border-gray-300"
-                }`}
-                disabled={loading}
-              />
-              {errors.ApplicationDate && (
-                <p className="text-red-500 text-xs mt-1 flex items-center">
-                  <AlertCircle className="h-3 w-3 mr-1" />
-                  {errors.ApplicationDate}
-                </p>
-              )}
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                <FileText className="inline h-4 w-4 mr-1" />
-                Notes
-              </label>
-              <textarea
-                value={formData.Notes}
-                onChange={(e) => handleInputChange("Notes", e.target.value)}
-                rows={3}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Any additional notes about this application..."
-                disabled={loading}
-              />
-            </div>
-
-            <div className="flex justify-end space-x-3 pt-4">
-              <button
-                type="button"
-                onClick={onClose}
-                className="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 disabled:opacity-50"
-                disabled={loading}
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:opacity-50 flex items-center"
-                disabled={loading}
-              >
-                {loading ? (
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                ) : (
-                  <Save className="h-4 w-4 mr-2" />
-                )}
-                {initialData ? "Update" : "Create"}
-              </button>
-            </div>
-          </form>
-        </div>
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );
@@ -499,158 +535,192 @@ const JobApplicationForm: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6 p-6 bg-gray-50 min-h-screen">
-      {/* Header */}
-      <div className="bg-white rounded-lg shadow-sm p-6">
-        <div className="flex justify-between items-center mb-4">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              Job Applications
-            </h1>
-            <p className="text-gray-600">Manage your job applications</p>
+    <div className="min-h-screen bg-gradient-to-br from-[#fcf8f5] via-white to-orange-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+        {/* Header */}
+        <div className="relative overflow-hidden bg-gradient-to-r from-[#f78433] to-[#ff6b35] rounded-3xl shadow-xl p-8">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-32 -mt-32"></div>
+          <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/10 rounded-full -ml-24 -mb-24"></div>
+
+          <div className="relative z-10 flex justify-between items-start">
+            <div>
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
+                  <Briefcase className="w-6 h-6 text-white" />
+                </div>
+                <h1 className="text-3xl md:text-4xl font-bold text-white">
+                  Job Applications
+                </h1>
+              </div>
+              <p className="text-orange-50 text-lg">
+                Track and manage all your job applications in one place 📝
+              </p>
+            </div>
+            <button
+              onClick={openCreateModal}
+              className="bg-white text-[#f78433] px-6 py-3 rounded-xl hover:shadow-lg transition-all font-semibold flex items-center gap-2 transform hover:scale-105"
+            >
+              <Plus className="h-5 w-5" />
+              <span className="hidden sm:inline">Add Application</span>
+            </button>
           </div>
-          <button
-            onClick={openCreateModal}
-            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors"
-          >
-            <Plus className="h-4 w-4" />
-            <span>Add Application</span>
-          </button>
         </div>
 
         {/* Filters */}
-        <div className="flex flex-col sm:flex-row gap-4">
-          <div className="flex-1">
-            <div className="relative">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Search by job title or company..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-          </div>
-          <div className="sm:w-48">
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="">All Statuses</option>
-              {STATUS_OPTIONS.map((status) => (
-                <option key={status} value={status}>
-                  {status}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-      </div>
-
-      {/* Success/Error Messages */}
-      {success && (
-        <div className="bg-green-50 border border-green-200 rounded-md p-4">
-          <div className="flex">
-            <CheckCircle className="h-5 w-5 text-green-400" />
-            <div className="ml-3">
-              <p className="text-sm font-medium text-green-800">{success}</p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {error && (
-        <div className="bg-red-50 border border-red-200 rounded-md p-4">
-          <div className="flex">
-            <AlertCircle className="h-5 w-5 text-red-400" />
-            <div className="ml-3">
-              <h3 className="text-sm font-medium text-red-800">Error</h3>
-              <p className="mt-1 text-sm text-red-700">{error}</p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Applications List */}
-      <div className="bg-white rounded-lg shadow-sm">
-        {loading ? (
-          <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500"></div>
-          </div>
-        ) : filteredApplications.length === 0 ? (
-          <div className="text-center py-12">
-            <Briefcase className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
-              {applications.length === 0
-                ? "No job applications yet"
-                : "No matching applications found"}
-            </h3>
-            <p className="text-gray-500 mb-4">
-              {applications.length === 0
-                ? "Get started by adding your first job application"
-                : "Try adjusting your search or filter criteria"}
-            </p>
-            {applications.length === 0 && (
-              <button
-                onClick={openCreateModal}
-                className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg"
-              >
-                Add Your First Application
-              </button>
-            )}
-          </div>
-        ) : (
-          <div className="divide-y divide-gray-200">
-            {filteredApplications.map((app) => (
-              <div
-                key={app.Id}
-                className="p-6 hover:bg-gray-50 transition-colors"
-              >
-                <div className="flex justify-between items-start">
-                  <div className="flex-1">
-                    <div className="flex items-center space-x-2 mb-2">
-                      <h3 className="text-lg font-semibold text-gray-900">
-                        {app.JobTitle}
-                      </h3>
-                      <StatusBadge status={app.Status} />
-                    </div>
-                    <p className="text-gray-600 mb-1 flex items-center">
-                      <Building className="h-4 w-4 mr-1" />
-                      {app.Company}
-                    </p>
-                    <p className="text-sm text-gray-500 mb-2 flex items-center">
-                      <Calendar className="h-4 w-4 mr-1" />
-                      Applied on {formatDate(app.ApplicationDate)}
-                    </p>
-                    {app.Notes && (
-                      <p className="text-sm text-gray-600 italic">
-                        "{app.Notes}"
-                      </p>
-                    )}
-                  </div>
-                  <div className="flex space-x-2 ml-4">
-                    <button
-                      onClick={() => openEditModal(app)}
-                      className="p-2 text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
-                      title="Edit application"
-                    >
-                      <Edit className="h-4 w-4" />
-                    </button>
-                    <button
-                      onClick={() => deleteApplication(app.Id)}
-                      className="p-2 text-red-600 hover:bg-red-50 rounded-md transition-colors"
-                      title="Delete application"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
-                  </div>
-                </div>
+        <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex-1">
+              <div className="relative">
+                <Search className="absolute left-4 top-4 h-5 w-5 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Search by job title or company..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#f78433]/20 focus:border-[#f78433] hover:border-gray-300 transition-all"
+                />
               </div>
-            ))}
+            </div>
+            <div className="sm:w-56">
+              <div className="relative">
+                <Filter className="absolute left-4 top-4 h-5 w-5 text-gray-400" />
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#f78433]/20 focus:border-[#f78433] hover:border-gray-300 transition-all appearance-none bg-white"
+                >
+                  <option value="">All Statuses</option>
+                  {STATUS_OPTIONS.map((status) => (
+                    <option key={status} value={status}>
+                      {status}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Success/Error Messages */}
+        {success && (
+          <div className="bg-green-50 border-2 border-green-200 rounded-2xl p-4 shadow-lg animate-in slide-in-from-top duration-300">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center">
+                <CheckCircle className="h-5 w-5 text-green-600" />
+              </div>
+              <p className="font-semibold text-green-800">{success}</p>
+            </div>
           </div>
         )}
+
+        {error && (
+          <div className="bg-red-50 border-2 border-red-200 rounded-2xl p-4 shadow-lg animate-in slide-in-from-top duration-300">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-red-100 rounded-xl flex items-center justify-center">
+                <AlertCircle className="h-5 w-5 text-red-600" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-red-800">Error</h3>
+                <p className="text-sm text-red-700">{error}</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Applications List */}
+        <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+          {loading ? (
+            <div className="flex flex-col justify-center items-center py-20">
+              <div className="relative">
+                <div className="animate-spin rounded-full h-20 w-20 border-4 border-orange-100"></div>
+                <div className="animate-spin rounded-full h-20 w-20 border-t-4 border-[#f78433] absolute top-0"></div>
+              </div>
+              <p className="mt-6 text-gray-600 font-medium">
+                Loading applications...
+              </p>
+            </div>
+          ) : filteredApplications.length === 0 ? (
+            <div className="text-center py-16 px-6">
+              <div className="w-20 h-20 bg-gradient-to-br from-orange-100 to-orange-50 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                <Briefcase className="h-10 w-10 text-[#f78433]" />
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                {applications.length === 0
+                  ? "No applications yet"
+                  : "No matching applications"}
+              </h3>
+              <p className="text-gray-600 mb-6 max-w-md mx-auto">
+                {applications.length === 0
+                  ? "Ready to start your job search journey? Add your first application!"
+                  : "Try adjusting your search or filter criteria"}
+              </p>
+              {applications.length === 0 && (
+                <button
+                  onClick={openCreateModal}
+                  className="bg-gradient-to-r from-[#f78433] to-[#ff6b35] text-white px-6 py-3 rounded-xl hover:shadow-lg transition-all font-semibold inline-flex items-center gap-2 transform hover:scale-105"
+                >
+                  <Plus className="h-5 w-5" />
+                  Add Your First Application
+                </button>
+              )}
+            </div>
+          ) : (
+            <div className="divide-y divide-gray-100">
+              {filteredApplications.map((app, index) => (
+                <div
+                  key={app.Id}
+                  className="group p-6 hover:bg-gradient-to-r hover:from-orange-50/50 hover:to-transparent transition-all duration-200"
+                >
+                  <div className="flex justify-between items-start gap-4">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-3 mb-3">
+                        <h3 className="text-xl font-bold text-gray-900 group-hover:text-[#f78433] transition-colors truncate">
+                          {app.JobTitle}
+                        </h3>
+                        <StatusBadge status={app.Status} />
+                      </div>
+                      <div className="space-y-2">
+                        <p className="text-gray-700 flex items-center gap-2 font-medium">
+                          <div className="w-6 h-6 bg-purple-50 rounded-lg flex items-center justify-center">
+                            <Building className="h-4 w-4 text-purple-600" />
+                          </div>
+                          {app.Company}
+                        </p>
+                        <p className="text-sm text-gray-600 flex items-center gap-2">
+                          <div className="w-6 h-6 bg-amber-50 rounded-lg flex items-center justify-center">
+                            <Calendar className="h-4 w-4 text-amber-600" />
+                          </div>
+                          Applied on {formatDate(app.ApplicationDate)}
+                        </p>
+                      </div>
+                      {app.Notes && (
+                        <p className="text-sm text-gray-600 mt-4 p-3 bg-gradient-to-r from-gray-50 to-orange-50/30 rounded-xl italic border-l-4 border-[#f78433]">
+                          "{app.Notes}"
+                        </p>
+                      )}
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => openEditModal(app)}
+                        className="p-3 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-xl transition-all transform hover:scale-110"
+                        title="Edit application"
+                      >
+                        <Edit className="h-5 w-5" />
+                      </button>
+                      <button
+                        onClick={() => deleteApplication(app.Id)}
+                        className="p-3 text-red-600 bg-red-50 hover:bg-red-100 rounded-xl transition-all transform hover:scale-110"
+                        title="Delete application"
+                      >
+                        <Trash2 className="h-5 w-5" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Form Modal */}

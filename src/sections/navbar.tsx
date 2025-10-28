@@ -34,7 +34,7 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="border-b bg-[#fcf8f5]  w-full z-50 ">
+    <nav className="border-b bg-[#fcf8f5] w-full z-50">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-17">
           {/* Logo */}
@@ -80,12 +80,14 @@ export default function Navbar() {
               Dashboard
             </a>
           </div>
-          <div>
+
+          {/* Desktop Auth Section */}
+          <div className="hidden md:block">
             {uid ? (
               <div className="relative">
                 <button
                   onClick={() => setIsProfileOpen(!isProfileOpen)}
-                  className="flex items-center space-x-2"
+                  className="flex items-center space-x-2 hover:opacity-80 transition-opacity"
                 >
                   <div className="w-8 h-8 rounded-full bg-white text-black/60 flex items-center justify-center">
                     <User size={18} />
@@ -95,18 +97,15 @@ export default function Navbar() {
                   </span>
                 </button>
                 {isProfileOpen && (
-                  <div className="absolute right-0 mt-2 w-56 bg-white text-popover-foreground rounded-md shadow-lg border p-2">
-                    <div className="px-1 py-2 border-b">
-                      <p className="text-sm font-medium text-black/60">
+                  <div className="absolute right-0 mt-2 w-56 bg-white text-popover-foreground rounded-md shadow-lg border">
+                    <div className="px-4 py-3 border-b">
+                      <p className="text-sm font-medium text-black/80">
                         {user?.email}
                       </p>
-                      {/* <p className="text-xs text-muted-foreground truncate text-black/60">
-                        ID: {uid?.substring(0, 8)}...
-                      </p> */}
                     </div>
                     <button
                       onClick={handleSignOut}
-                      className="w-full justify-start mt-1.5 text-sm flex items-center space-x-2 text-black/60"
+                      className="w-full text-left px-4 py-2.5 text-sm flex items-center space-x-2 text-black/60 hover:bg-amber-50 transition-colors"
                     >
                       <LogOut size={16} />
                       <span>Sign Out</span>
@@ -115,17 +114,16 @@ export default function Navbar() {
                 )}
               </div>
             ) : (
-              <div className="flex items-center space-x-6">
+              <div className="flex items-center space-x-4">
                 <button
                   onClick={() => router.push("/auth")}
-                  className="text-black/90 text-sm"
+                  className="text-black/90 text-sm hover:text-[#f78433] transition-colors"
                 >
-                  {" "}
                   Sign In
                 </button>
                 <button
                   onClick={() => router.push("/auth")}
-                  className="text-white font-semibold text-sm bg-black py-2 px-3 rounded-md"
+                  className="text-white font-semibold text-sm bg-black py-2 px-4 rounded-md hover:bg-black/90 transition-colors"
                 >
                   Get Started
                 </button>
@@ -135,7 +133,10 @@ export default function Navbar() {
 
           {/* Mobile Menu Button */}
           <div className="md:hidden">
-            <button onClick={() => setIsMenuOpen(!isMenuOpen)}>
+            <button
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="text-black/60 hover:text-black transition-colors"
+            >
               {isMenuOpen ? (
                 <X className="h-6 w-6" />
               ) : (
@@ -148,48 +149,74 @@ export default function Navbar() {
 
       {/* Mobile Navigation */}
       {isMenuOpen && (
-        <div className="md:hidden border-t bg-background/95 backdrop-blur">
-          <div className="px-3 py-3 space-y-1">
+        <div className="md:hidden border-t bg-[#fcf8f5]">
+          <div className="px-4 py-4 space-y-2">
             <a
               href="/"
-              className="block px-3 py-2 rounded-md  hover:text-foreground hover:bg-accent transition-colors"
+              className="block px-4 py-2.5 rounded-md text-black/60 hover:text-[#f78433] hover:bg-white/50 transition-colors"
             >
-              Home
+              Features
+            </a>
+            <a
+              href="/"
+              className="block px-4 py-2.5 rounded-md text-black/60 hover:text-[#f78433] hover:bg-white/50 transition-colors"
+            >
+              How it Works
+            </a>
+            <a
+              href="/"
+              className="block px-4 py-2.5 rounded-md text-black/60 hover:text-[#f78433] hover:bg-white/50 transition-colors"
+            >
+              Contact
             </a>
             <a
               href="/dashboard"
               onClick={handleDashboardClick}
-              className="block px-3 py-2 rounded-md text-black/60 hover:text-[#f78433] transition-colors"
+              className="block px-4 py-2.5 rounded-md text-black/60 hover:text-[#f78433] hover:bg-white/50 transition-colors"
             >
               Dashboard
             </a>
 
-            {uid ? (
-              <>
-                <div className="px-3 py-2 border-t mt-2">
-                  <p className="text-sm text-black/60 font-medium text-black/">
-                    {user?.email}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    ID: {uid?.substring(0, 12)}...
-                  </p>
+            {/* Mobile Auth Section */}
+            <div className="pt-3 border-t border-black/10">
+              {uid ? (
+                <>
+                  <div className="px-4 py-2 mb-2">
+                    <p className="text-sm font-medium text-black/80">
+                      {user?.email}
+                    </p>
+                  </div>
+                  <button
+                    onClick={handleSignOut}
+                    className="w-full text-left px-4 py-2.5 rounded-md text-black/60 hover:text-[#f78433] hover:bg-white/50 transition-colors flex items-center space-x-2"
+                  >
+                    <LogOut size={16} />
+                    <span>Sign Out</span>
+                  </button>
+                </>
+              ) : (
+                <div className="space-y-2">
+                  <button
+                    onClick={() => {
+                      router.push("/auth");
+                      setIsMenuOpen(false);
+                    }}
+                    className="w-full text-left px-4 py-2.5 rounded-md text-black/60 hover:text-[#f78433] hover:bg-white/50 transition-colors"
+                  >
+                    Sign In
+                  </button>
+                  <button
+                    onClick={() => {
+                      router.push("/auth");
+                      setIsMenuOpen(false);
+                    }}
+                    className="w-full text-center text-white font-semibold text-sm bg-black py-2.5 px-4 rounded-md hover:bg-black/90 transition-colors"
+                  >
+                    Get Started
+                  </button>
                 </div>
-                <button
-                  onClick={handleSignOut}
-                  className="w-full justify-start mt-1 text-sm flex items-center space-x-2"
-                >
-                  <LogOut size={16} />
-                  <span>Sign Out</span>
-                </button>
-              </>
-            ) : (
-              <button
-                className="w-full mt-2"
-                onClick={() => router.push("/auth")}
-              >
-                Sign In
-              </button>
-            )}
+              )}
+            </div>
           </div>
         </div>
       )}
