@@ -39,9 +39,6 @@ export default function AuthPage() {
         setUser(user);
         setUid(uid);
 
-        // Send UID to your ASP.NET backend
-        await syncUserWithBackend(uid, userEmail);
-
         // Redirect to dashboard or home
         router.push("/dashboard");
       } else {
@@ -58,7 +55,7 @@ export default function AuthPage() {
   const syncUserWithBackend = async (uid: string, email: string | null) => {
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/users/sync`,
+        `${process.env.NEXT_PUBLIC_API_URL}/users/sync`,
         {
           method: "POST",
           headers: {

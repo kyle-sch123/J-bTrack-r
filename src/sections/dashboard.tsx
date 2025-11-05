@@ -13,21 +13,20 @@ import {
   RefreshCw,
   Sparkles,
 } from "lucide-react";
-
+import { useAuthStore } from "@/store/authStore";
 import MetricCard from "@/components/metricCard";
 import StatusBadge from "@/components/statusBadge";
 
-// Type definitions
 interface JobApplication {
-  Id: string;
-  JobNumber: number;
-  UserId: string;
-  JobTitle: string;
-  Company: string;
-  Status: string;
-  ApplicationDate: string;
-  Notes: string;
-  AutoStatusUpdated: boolean;
+  Id: string; // MongoDB _id (capitalized in response)
+  jobNumber: number; // camelCase to match backend
+  userId: string; // camelCase to match backend
+  jobTitle: string; // camelCase to match backend
+  company: string; // camelCase to match backend
+  status: string; // camelCase to match backend
+  applicationDate: string; // camelCase to match backend
+  notes: string; // camelCase to match backend
+  autoStatusUpdated: boolean; // camelCase to match backend
 }
 
 interface DashboardMetrics {
@@ -41,35 +40,40 @@ interface DashboardMetrics {
 
 // Main Dashboard Component
 const JobApplicationDashboard: React.FC = () => {
-  //State & Side Effects - useState is how react stores data internally, useEffect is how we perform side effects like fetching data after render.
   const [applications, setApplications] = useState<JobApplication[]>([]);
   const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const API_ENDPOINT = "http://localhost:5160/api/jobapplication";
+  const uid = useAuthStore((state) => state.uid);
+
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
   useEffect(() => {
-    fetchJobApplications();
-  }, []);
+    if (uid) {
+      // Only fetch if uid exists
+      fetchJobApplications();
+    }
+  }, [uid]);
 
   const fetchJobApplications = async () => {
     try {
       setLoading(true);
-      const response = await fetch(API_ENDPOINT);
+      setError(null);
+
+      // Correct URL with query parameter
+      const response = await fetch(`${API_BASE_URL}?userId=${uid}`);
 
       if (!response.ok) {
-        throw new Error("Failed to fetch job applications");
+        throw new Error(`Failed to fetch job applications: ${response.status}`);
       }
 
       const data: JobApplication[] = await response.json();
 
       setApplications(data);
-
       setMetrics(calculateMetrics(data));
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
-
       console.error("Error fetching job applications:", err);
     } finally {
       setLoading(false);
@@ -83,36 +87,40 @@ const JobApplicationDashboard: React.FC = () => {
     const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
     const oneMonthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
 
+    // Use camelCase field names
     const statusCounts = jobApplications.reduce((acc, app) => {
-      acc[app.Status] = (acc[app.Status] || 0) + 1;
+      acc[app.status] = (acc[app.status] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
 
     const applicationsThisWeek = jobApplications.filter(
-      (app) => new Date(app.ApplicationDate) >= oneWeekAgo
+      (app) => new Date(app.applicationDate) >= oneWeekAgo
     ).length;
 
     const applicationsThisMonth = jobApplications.filter(
-      (app) => new Date(app.ApplicationDate) >= oneMonthAgo
+      (app) => new Date(app.applicationDate) >= oneMonthAgo
     ).length;
 
     const recentApplications = jobApplications
       .sort(
         (a, b) =>
-          new Date(b.ApplicationDate).getTime() -
-          new Date(a.ApplicationDate).getTime()
+          new Date(b.applicationDate).getTime() -
+          new Date(a.applicationDate).getTime()
       )
       .slice(0, 5);
 
     // Calculate average response time (simplified - days since application)
-    const averageResponseTime = Math.round(
-      jobApplications.reduce((sum, app) => {
-        const daysSinceApplication =
-          (now.getTime() - new Date(app.ApplicationDate).getTime()) /
-          (1000 * 60 * 60 * 24);
-        return sum + daysSinceApplication;
-      }, 0) / jobApplications.length
-    );
+    const averageResponseTime =
+      jobApplications.length > 0
+        ? Math.round(
+            jobApplications.reduce((sum, app) => {
+              const daysSinceApplication =
+                (now.getTime() - new Date(app.applicationDate).getTime()) /
+                (1000 * 60 * 60 * 24);
+              return sum + daysSinceApplication;
+            }, 0) / jobApplications.length
+          )
+        : 0;
 
     return {
       totalApplications: jobApplications.length,
@@ -203,7 +211,7 @@ const JobApplicationDashboard: React.FC = () => {
         {/* Metrics Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <div className="group">
-            <div className="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 p-6 border-2 border-blue-100 hover:border-blue-200">
+            <div className="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 p-6 border-2 border-blue-100 hover:border-blue-200 h-50">
               <div className="flex items-start justify-between mb-4">
                 <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center group-hover:bg-blue-100 transition-colors">
                   <Briefcase className="w-6 h-6 text-blue-600" />
@@ -222,7 +230,7 @@ const JobApplicationDashboard: React.FC = () => {
           </div>
 
           <div className="group">
-            <div className="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 p-6 border-2 border-green-100 hover:border-green-200">
+            <div className="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 p-6 border-2 border-green-100 hover:border-green-200 h-50">
               <div className="flex items-start justify-between mb-4">
                 <div className="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center group-hover:bg-green-100 transition-colors">
                   <Calendar className="w-6 h-6 text-green-600" />
@@ -244,7 +252,7 @@ const JobApplicationDashboard: React.FC = () => {
           </div>
 
           <div className="group">
-            <div className="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 p-6 border-2 border-amber-100 hover:border-amber-200">
+            <div className="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 p-6 border-2 border-amber-100 hover:border-amber-200 h-50">
               <div className="flex items-start justify-between mb-4">
                 <div className="w-12 h-12 bg-amber-50 rounded-xl flex items-center justify-center group-hover:bg-amber-100 transition-colors">
                   <TrendingUp className="w-6 h-6 text-amber-600" />
@@ -269,7 +277,7 @@ const JobApplicationDashboard: React.FC = () => {
           </div>
 
           <div className="group">
-            <div className="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 p-6 border-2 border-purple-100 hover:border-purple-200">
+            <div className="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 p-6 border-2 border-purple-100 hover:border-purple-200 h-50">
               <div className="flex items-start justify-between mb-4">
                 <div className="w-12 h-12 bg-purple-50 rounded-xl flex items-center justify-center group-hover:bg-purple-100 transition-colors">
                   <Clock className="w-6 h-6 text-purple-600" />
@@ -409,21 +417,21 @@ const JobApplicationDashboard: React.FC = () => {
                     <div className="flex justify-between items-start mb-2">
                       <div className="flex-1">
                         <h4 className="font-bold text-gray-900 text-lg group-hover:text-[#f78433] transition-colors">
-                          {app.JobTitle}
+                          {app.jobTitle}
                         </h4>
                         <p className="text-sm text-gray-600 font-medium">
-                          {app.Company}
+                          {app.company}
                         </p>
                       </div>
-                      <StatusBadge status={app.Status} />
+                      <StatusBadge status={app.status} />
                     </div>
                     <div className="flex items-center gap-2 text-xs text-gray-500">
                       <Calendar className="w-3 h-3" />
-                      {formatDate(app.ApplicationDate)}
+                      {formatDate(app.applicationDate)}
                     </div>
-                    {app.Notes && (
+                    {app.notes && (
                       <p className="text-sm text-gray-600 mt-3 p-3 bg-white/50 rounded-lg italic border-l-2 border-orange-300">
-                        {app.Notes}
+                        {app.notes}
                       </p>
                     )}
                   </div>

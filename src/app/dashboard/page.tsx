@@ -1,4 +1,5 @@
 import DashboardSection from "@/sections/dashboard";
+import Footer from "@/sections/footer";
 import JobApplicationForm from "@/sections/JobApplicationForm";
 import Navbar from "@/sections/navbar";
 import Image from "next/image";
@@ -8,8 +9,9 @@ export default function Home() {
     <div>
       <>
         <Navbar />
-        <JobApplicationForm />
         <DashboardSection />
+        <JobApplicationForm />
+        <Footer />
       </>
     </div>
   );

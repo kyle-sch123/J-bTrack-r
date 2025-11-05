@@ -21,18 +21,20 @@ import {
 
 import { useAuthStore } from "@/store/authStore";
 import StatusBadge from "@/components/statusBadge";
+import { log } from "console";
+import { headers } from "next/headers";
 
 // Type definitions
 interface JobApplication {
-  Id: string;
-  JobNumber: number;
-  UserId: string;
-  JobTitle: string;
-  Company: string;
-  Status: string;
-  ApplicationDate: string;
-  Notes: string;
-  AutoStatusUpdated: boolean;
+  Id: string; // MongoDB _id (capitalized in response)
+  jobNumber: number; // camelCase to match backend
+  userId: string; // camelCase to match backend
+  jobTitle: string; // camelCase to match backend
+  company: string; // camelCase to match backend
+  status: string; // camelCase to match backend
+  applicationDate: string; // camelCase to match backend
+  notes: string; // camelCase to match backend
+  autoStatusUpdated: boolean; // camelCase to match backend
 }
 
 interface FormData {
@@ -75,11 +77,11 @@ const JobApplicationModal: React.FC<{
   useEffect(() => {
     if (initialData) {
       setFormData({
-        JobTitle: initialData.JobTitle,
-        Company: initialData.Company,
-        Status: initialData.Status,
-        ApplicationDate: initialData.ApplicationDate.split("T")[0],
-        Notes: initialData.Notes,
+        JobTitle: initialData.jobTitle,
+        Company: initialData.company,
+        Status: initialData.status,
+        ApplicationDate: initialData.applicationDate.split("T")[0],
+        Notes: initialData.notes,
       });
     } else {
       setFormData({
@@ -130,7 +132,7 @@ const JobApplicationModal: React.FC<{
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
-      <div className="bg-white rounded-3xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto border border-gray-100 animate-in zoom-in-95 duration-200">
+      <div className="bg-white rounded-3xl shadow-2xl max-w-xl w-full max-h-[90vh] overflow-y-auto overflow-x-hidden  animate-in zoom-in-95 duration-200">
         {/* Modal Header */}
         <div className="relative bg-gradient-to-r from-[#f78433] to-[#ff6b35] p-6 rounded-t-3xl">
           <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16"></div>
@@ -170,7 +172,7 @@ const JobApplicationModal: React.FC<{
               type="text"
               value={formData.JobTitle}
               onChange={(e) => handleInputChange("JobTitle", e.target.value)}
-              className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#f78433]/20 transition-all ${
+              className={`w-full text-gray-500/50 px-4 py-3 border-2 rounded-xl focus:text-gray-500/100 focus:outline-none focus:ring-2 focus:ring-[#f78433]/20 transition-all ${
                 errors.JobTitle
                   ? "border-red-300 bg-red-50"
                   : "border-gray-200 hover:border-gray-300 focus:border-[#f78433]"
@@ -197,7 +199,7 @@ const JobApplicationModal: React.FC<{
               type="text"
               value={formData.Company}
               onChange={(e) => handleInputChange("Company", e.target.value)}
-              className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#f78433]/20 transition-all ${
+              className={`w-full text-gray-500/50 px-4 py-3 border-2 rounded-xl focus:text-gray-500/100 focus:outline-none focus:ring-2 focus:ring-[#f78433]/20 transition-all ${
                 errors.Company
                   ? "border-red-300 bg-red-50"
                   : "border-gray-200 hover:border-gray-300 focus:border-[#f78433]"
@@ -223,7 +225,7 @@ const JobApplicationModal: React.FC<{
             <select
               value={formData.Status}
               onChange={(e) => handleInputChange("Status", e.target.value)}
-              className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#f78433]/20 focus:border-[#f78433] hover:border-gray-300 transition-all bg-white"
+              className="w-full text-gray-500/50 px-4 py-3 border-2 border-gray-200 rounded-xl focus:text-gray-500/100 focus:outline-none focus:ring-2 focus:ring-[#f78433]/20 focus:border-[#f78433] hover:border-gray-300 transition-all bg-white"
               disabled={loading}
             >
               {STATUS_OPTIONS.map((status) => (
@@ -247,7 +249,7 @@ const JobApplicationModal: React.FC<{
               onChange={(e) =>
                 handleInputChange("ApplicationDate", e.target.value)
               }
-              className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#f78433]/20 transition-all ${
+              className={`w-full px-4 py-3 border-2 text-gray-500/50 rounded-xl focus:text-gray-500/100 focus:outline-none focus:ring-2 focus:ring-[#f78433]/20 transition-all ${
                 errors.ApplicationDate
                   ? "border-red-300 bg-red-50"
                   : "border-gray-200 hover:border-gray-300 focus:border-[#f78433]"
@@ -273,7 +275,7 @@ const JobApplicationModal: React.FC<{
               value={formData.Notes}
               onChange={(e) => handleInputChange("Notes", e.target.value)}
               rows={4}
-              className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#f78433]/20 focus:border-[#f78433] hover:border-gray-300 transition-all resize-none"
+              className="w-full px-4 py-3 text-gray-500/50 border-2 border-gray-200 rounded-xl focus:text-gray-500/100 focus:outline-none focus:ring-2 focus:ring-[#f78433]/20 focus:border-[#f78433] hover:border-gray-300 transition-all resize-none"
               placeholder="Any additional notes about this application..."
               disabled={loading}
             />
@@ -333,23 +335,25 @@ const JobApplicationForm: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState("");
 
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+  const API_BASE_URL_SINGLE = process.env.NEXT_PUBLIC_API_URL_S;
   const uid = useAuthStore((state) => state.uid);
 
   useEffect(() => {
     fetchApplications();
-  }, []);
+  }, [uid]);
 
   useEffect(() => {
     filterApplications();
   }, [applications, searchTerm, statusFilter]);
 
+  //GET API REQUEST
   const fetchApplications = async () => {
     try {
       setLoading(true);
       setError(null);
 
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/jobapplications`
+        `${process.env.NEXT_PUBLIC_API_URL}?userId=${uid}`
       );
 
       if (!response.ok) {
@@ -357,11 +361,12 @@ const JobApplicationForm: React.FC = () => {
       }
 
       const data: JobApplication[] = await response.json();
+
       setApplications(
         data.sort(
           (a, b) =>
-            new Date(b.ApplicationDate).getTime() -
-            new Date(a.ApplicationDate).getTime()
+            new Date(b.applicationDate).getTime() -
+            new Date(a.applicationDate).getTime()
         )
       );
     } catch (err) {
@@ -377,34 +382,39 @@ const JobApplicationForm: React.FC = () => {
     if (searchTerm) {
       filtered = filtered.filter(
         (app) =>
-          app.JobTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          app.Company.toLowerCase().includes(searchTerm.toLowerCase())
+          app.jobTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          app.company.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
     if (statusFilter) {
-      filtered = filtered.filter((app) => app.Status === statusFilter);
+      filtered = filtered.filter((app) => app.status === statusFilter);
     }
 
     setFilteredApplications(filtered);
   };
 
+  //===== POST HTTP METHOD =====
   const createApplication = async (formData: FormData) => {
     try {
+      console.log("Trying to create a new job appliuaction using -->", uid);
+
       setFormLoading(true);
       setError(null);
 
       const newApplication = {
-        UserId: uid,
-        JobTitle: formData.JobTitle,
-        Company: formData.Company,
-        Status: formData.Status,
-        ApplicationDate: new Date(formData.ApplicationDate).toISOString(),
-        Notes: formData.Notes,
-        AutoStatusUpdated: false,
+        userId: uid,
+        jobTitle: formData.JobTitle,
+        company: formData.Company,
+        status: formData.Status,
+        applicationDate: new Date(formData.ApplicationDate).toISOString(),
+        notes: formData.Notes,
+        autoStatusUpdated: false,
       };
 
-      const response = await fetch(`${API_BASE_URL}/jobapplication`, {
+      console.log(JSON.stringify(newApplication));
+
+      const response = await fetch(`${API_BASE_URL}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -447,7 +457,7 @@ const JobApplicationForm: React.FC = () => {
       };
 
       const response = await fetch(
-        `${API_BASE_URL}/jobapplication/${editingApplication.Id}`,
+        `${API_BASE_URL_SINGLE}/${editingApplication.Id}`,
         {
           method: "PUT",
           headers: {
@@ -484,7 +494,7 @@ const JobApplicationForm: React.FC = () => {
     try {
       setError(null);
 
-      const response = await fetch(`${API_BASE_URL}/jobapplication/${id}`, {
+      const response = await fetch(`${API_BASE_URL_SINGLE}/${id}`, {
         method: "DELETE",
       });
 
@@ -577,7 +587,7 @@ const JobApplicationForm: React.FC = () => {
                   placeholder="Search by job title or company..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#f78433]/20 focus:border-[#f78433] hover:border-gray-300 transition-all"
+                  className="w-full pl-12 pr-4 py-3 border-2 text-gray-500 border-gray-200 rounded-xl focus:text-gray-500 focus:outline-none focus:ring-2 focus:ring-[#f78433]/20 focus:border-[#f78433] hover:border-gray-300 transition-all"
                 />
               </div>
             </div>
@@ -675,27 +685,31 @@ const JobApplicationForm: React.FC = () => {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-3 mb-3">
                         <h3 className="text-xl font-bold text-gray-900 group-hover:text-[#f78433] transition-colors truncate">
-                          {app.JobTitle}
+                          {app.jobTitle}
                         </h3>
-                        <StatusBadge status={app.Status} />
+                        <StatusBadge status={app.status} />
                       </div>
                       <div className="space-y-2">
-                        <p className="text-gray-700 flex items-center gap-2 font-medium">
+                        <span className="flex gap-2">
                           <div className="w-6 h-6 bg-purple-50 rounded-lg flex items-center justify-center">
                             <Building className="h-4 w-4 text-purple-600" />
                           </div>
-                          {app.Company}
-                        </p>
-                        <p className="text-sm text-gray-600 flex items-center gap-2">
+                          <p className="text-gray-700 flex items-center gap-2 font-medium">
+                            {app.company}
+                          </p>
+                        </span>
+                        <span className="flex gap-2">
                           <div className="w-6 h-6 bg-amber-50 rounded-lg flex items-center justify-center">
                             <Calendar className="h-4 w-4 text-amber-600" />
                           </div>
-                          Applied on {formatDate(app.ApplicationDate)}
-                        </p>
+                          <p className="text-sm text-gray-600 flex items-center gap-2">
+                            Applied on {formatDate(app.applicationDate)}
+                          </p>
+                        </span>
                       </div>
-                      {app.Notes && (
+                      {app.notes && (
                         <p className="text-sm text-gray-600 mt-4 p-3 bg-gradient-to-r from-gray-50 to-orange-50/30 rounded-xl italic border-l-4 border-[#f78433]">
-                          "{app.Notes}"
+                          "{app.notes}"
                         </p>
                       )}
                     </div>

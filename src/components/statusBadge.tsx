@@ -1,7 +1,7 @@
 // Status Badge Component
 const StatusBadge: React.FC<{ status: string }> = ({ status }) => {
   const getStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
+    switch (status) {
       case "applied":
         return "bg-blue-100 text-blue-800";
       case "interview scheduled":
