@@ -97,7 +97,7 @@ export default function Navbar() {
                   </span>
                 </button>
                 {isProfileOpen && (
-                  <div className="absolute right-0 mt-2 w-56 bg-white text-popover-foreground rounded-md shadow-lg border">
+                  <div className="absolute right-0 mt-2 w-56 bg-white text-popover-foreground rounded-md shadow-lg border z-10">
                     <div className="px-4 py-3 border-b">
                       <p className="text-sm font-medium text-black/80">
                         {user?.email}

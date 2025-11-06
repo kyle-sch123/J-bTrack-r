@@ -248,7 +248,7 @@ export default function AuthPage() {
                   required
                   minLength={6}
                   className="w-full px-4 py-3 text-black border border-gray-300 rounded-2xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
-                  placeholder="••••••••"
+                  placeholder="Enter your password"
                 />
                 <div className="absolute left-0 bottom-full mb-2 hidden group-hover:block group-focus-within:block w-full">
                   <div className="bg-gray-900 text-white text-sm rounded-lg py-2 px-3 shadow-lg">
@@ -267,7 +267,7 @@ export default function AuthPage() {
                     required
                     minLength={6}
                     className="w-full px-4 py-3 text-black border border-gray-300 rounded-2xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
-                    placeholder="••••••••"
+                    placeholder="Re-enter password"
                   />
                   <div className="absolute left-0 bottom-full mb-2 hidden group-hover:block group-focus-within:block w-full">
                     <div className="bg-gray-900 text-white text-sm rounded-lg py-2 px-3 shadow-lg">
