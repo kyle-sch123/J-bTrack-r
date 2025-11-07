@@ -18,16 +18,13 @@ import {
   Sparkles,
   TrendingUp,
 } from "lucide-react";
-
+import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 import { useAuthStore } from "@/store/authStore";
 import StatusBadge from "@/components/statusBadge";
-import { log } from "console";
-import { headers } from "next/headers";
 
 // Type definitions
 interface JobApplication {
   Id: string; // MongoDB _id (capitalized in response)
-  jobNumber: number; // camelCase to match backend
   userId: string; // camelCase to match backend
   jobTitle: string; // camelCase to match backend
   company: string; // camelCase to match backend
@@ -56,6 +53,61 @@ const STATUS_OPTIONS = [
   "On Hold",
 ];
 
+const STATUS_COLORS: Record<
+  string,
+  { bg: string; text: string; border: string }
+> = {
+  Applied: {
+    bg: "bg-blue-100",
+    text: "text-blue-700",
+    border: "border-blue-300",
+  },
+  "Interview Scheduled": {
+    bg: "bg-purple-100",
+    text: "text-purple-700",
+    border: "border-purple-300",
+  },
+  "Interview Completed": {
+    bg: "bg-indigo-100",
+    text: "text-indigo-700",
+    border: "border-indigo-300",
+  },
+  Rejected: {
+    bg: "bg-red-100",
+    text: "text-red-700",
+    border: "border-red-300",
+  },
+  Accepted: {
+    bg: "bg-green-100",
+    text: "text-green-700",
+    border: "border-green-300",
+  },
+  Withdrawn: {
+    bg: "bg-gray-100",
+    text: "text-gray-700",
+    border: "border-gray-300",
+  },
+  "On Hold": {
+    bg: "bg-yellow-100",
+    text: "text-yellow-700",
+    border: "border-yellow-300",
+  },
+};
+
+//LOTTIE PLAYER
+const LottieAnimation: React.FC<{ src: string }> = ({ src }) => {
+  return (
+    <DotLottieReact
+      //   src="@/assets/animations/animation.lottie"
+      //src\assets\animations\create-animation.lottie
+      src={`${src}`}
+      loop
+      autoplay
+      speed={0.6}
+      className="w-auto h-[400px] md:h-[550px]"
+    />
+  );
+};
 // Form Modal Component
 const JobApplicationModal: React.FC<{
   isOpen: boolean;
@@ -114,7 +166,7 @@ const JobApplicationModal: React.FC<{
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.MouseEvent) => {
     e.preventDefault();
     if (validateForm()) {
       onSubmit(formData);
@@ -130,185 +182,254 @@ const JobApplicationModal: React.FC<{
 
   if (!isOpen) return null;
 
+  const isEdit = !!initialData;
+
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
-      <div className="bg-white rounded-3xl shadow-2xl max-w-xl w-full max-h-[90vh] overflow-y-auto overflow-x-hidden  animate-in zoom-in-95 duration-200">
-        {/* Modal Header */}
-        <div className="relative bg-gradient-to-r from-[#f78433] to-[#ff6b35] p-6 rounded-t-3xl">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16"></div>
-          <div className="relative z-10">
-            <div className="flex justify-between items-start mb-2">
-              <div>
-                <h2 className="text-2xl font-bold text-white mb-1">
-                  {initialData ? "Edit Application" : "New Application"}
-                </h2>
-                <p className="text-orange-100 text-sm">
-                  {initialData
-                    ? "Update your application details"
-                    : "Add a new job to track"}
-                </p>
-              </div>
+    <div
+      className="fixed inset-0 bg-gradient-to-br from-black/50 to-purple-900/30 backdrop-blur-md flex items-center justify-center z-50 p-4 animate-in fade-in duration-300"
+      onClick={onClose}
+    >
+      <div
+        className={`bg-white rounded-3xl shadow-2xl w-full max-w-4xl animate-in zoom-in-95 duration-300 overflow-hidden ${
+          isEdit ? "slide-in-from-right-4" : "slide-in-from-left-4"
+        }`}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className={`flex ${isEdit ? "flex-row-reverse" : "flex-row"}`}>
+          {/* Lottie Animation Side */}
+          <div className="hidden md:flex md:w-2/5 bg-gradient-to-br from-orange-50 via-pink-50 to-purple-50 p-8 items-center justify-center relative overflow-hidden">
+            {/* Decorative circles */}
+            <div className="absolute top-0 right-0 w-32 h-32 bg-orange-200/30 rounded-full blur-3xl"></div>
+            <div className="absolute bottom-0 left-0 w-40 h-40 bg-purple-200/30 rounded-full blur-3xl"></div>
+
+            <LottieAnimation
+              src={
+                isEdit
+                  ? "https://lottie.host/1e84ccad-c16c-471f-8f69-97f29297fedf/KtekqEyF44.lottie"
+                  : "https://lottie.host/99da9821-11f2-466f-b1c0-d28a1ffadec2/20AULrss2N.lottie"
+              }
+            />
+          </div>
+
+          {/* Form Side */}
+          <div className="w-full md:w-3/5">
+            {/* Colorful Header */}
+            <div className="relative p-6 pb-5 bg-gradient-to-r from-[#fc7534] via-orange-400 to-pink-500">
               <button
                 onClick={onClose}
-                className="text-white/80 hover:text-white hover:bg-white/20 p-2 rounded-xl transition-all"
+                className="absolute top-4 right-4 w-9 h-9 flex items-center justify-center rounded-full bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white transition-all hover:rotate-90 duration-300"
                 disabled={loading}
               >
                 <X className="h-5 w-5" />
               </button>
+
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                  {isEdit ? (
+                    <TrendingUp className="h-6 w-6 text-white" />
+                  ) : (
+                    <Sparkles className="h-6 w-6 text-white" />
+                  )}
+                </div>
+                <div>
+                  <h2 className="text-2xl font-bold text-white">
+                    {isEdit ? "Update Application" : "New Application"}
+                  </h2>
+                  <p className="text-sm text-white/80">
+                    {isEdit
+                      ? "Make your changes below"
+                      : "Let's add a new opportunity!"}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Form Content */}
+            <div className="p-6 space-y-5 max-h-[calc(100vh-300px)] overflow-y-auto">
+              {/* Job Title */}
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                  {/* <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center">
+                    <Briefcase className="h-3.5 w-3.5 text-white" />
+                  </div> */}
+                  Job Title
+                </label>
+                <input
+                  type="text"
+                  value={formData.JobTitle}
+                  onChange={(e) =>
+                    handleInputChange("JobTitle", e.target.value)
+                  }
+                  className={`w-full px-4 py-3 text-sm border-2 rounded-xl text-gray-700 font-medium focus:outline-none focus:ring-4 transition-all ${
+                    errors.JobTitle
+                      ? "border-red-300 focus:ring-red-100 bg-red-50"
+                      : "border-gray-200 focus:ring-orange-100 focus:border-orange-400 hover:border-gray-300"
+                  }`}
+                  placeholder="e.g., Senior Product Designer"
+                  disabled={loading}
+                />
+                {errors.JobTitle && (
+                  <p className="text-xs text-red-600 flex items-center gap-1.5 mt-1 font-medium">
+                    <AlertCircle className="h-3.5 w-3.5" />
+                    {errors.JobTitle}
+                  </p>
+                )}
+              </div>
+
+              {/* Company */}
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                  {/* <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center">
+                    <Building className="h-3.5 w-3.5 text-white" />
+                  </div> */}
+                  Company
+                </label>
+                <input
+                  type="text"
+                  value={formData.Company}
+                  onChange={(e) => handleInputChange("Company", e.target.value)}
+                  className={`w-full px-4 py-3 text-sm border-2 rounded-xl text-gray-700 font-medium focus:outline-none focus:ring-4 transition-all ${
+                    errors.Company
+                      ? "border-red-300 focus:ring-red-100 bg-red-50"
+                      : "border-gray-200 focus:ring-orange-100 focus:border-orange-400 hover:border-gray-300"
+                  }`}
+                  placeholder="e.g., Google, Shopify, Stripe"
+                  disabled={loading}
+                />
+                {errors.Company && (
+                  <p className="text-xs text-red-600 flex items-center gap-1.5 mt-1 font-medium">
+                    <AlertCircle className="h-3.5 w-3.5" />
+                    {errors.Company}
+                  </p>
+                )}
+              </div>
+
+              {/* Status & Date Row */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {/* Status */}
+                <div className="space-y-2">
+                  <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                    <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center">
+                      <TrendingUp className="h-3.5 w-3.5 text-white" />
+                    </div>
+                    Status
+                  </label>
+                  <div className="relative">
+                    <select
+                      value={formData.Status}
+                      onChange={(e) =>
+                        handleInputChange("Status", e.target.value)
+                      }
+                      className={`w-full px-4 py-3 text-sm border-2 border-gray-200 rounded-xl font-semibold focus:outline-none focus:ring-4 focus:ring-orange-100 focus:border-orange-400 bg-white hover:border-gray-300 transition-all appearance-none cursor-pointer ${
+                        STATUS_COLORS[formData.Status].text
+                      }`}
+                      disabled={loading}
+                    >
+                      {STATUS_OPTIONS.map((status) => (
+                        <option
+                          key={status}
+                          value={status}
+                          className="text-gray-700"
+                        >
+                          {status}
+                        </option>
+                      ))}
+                    </select>
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                      <svg
+                        className="h-5 w-5 text-gray-400"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M19 9l-7 7-7-7"
+                        />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Date */}
+                <div className="space-y-2">
+                  <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                    {/* <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-pink-400 to-pink-600 flex items-center justify-center">
+                      <Calendar className="h-3.5 w-3.5 text-white" />
+                    </div> */}
+                    Date Applied
+                  </label>
+                  <input
+                    type="date"
+                    value={formData.ApplicationDate}
+                    onChange={(e) =>
+                      handleInputChange("ApplicationDate", e.target.value)
+                    }
+                    className={`w-full px-4 py-3 text-sm border-2 rounded-xl text-gray-700 font-medium focus:outline-none focus:ring-4 transition-all ${
+                      errors.ApplicationDate
+                        ? "border-red-300 focus:ring-red-100 bg-red-50"
+                        : "border-gray-200 focus:ring-orange-100 focus:border-orange-400 hover:border-gray-300"
+                    }`}
+                    disabled={loading}
+                  />
+                </div>
+              </div>
+
+              {/* Notes */}
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                  {/* <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center">
+                    <FileText className="h-3.5 w-3.5 text-white" />
+                  </div> */}
+                  Notes
+                  <span className="text-xs text-gray-400 font-normal ml-1">
+                    (optional)
+                  </span>
+                </label>
+                <textarea
+                  value={formData.Notes}
+                  onChange={(e) => handleInputChange("Notes", e.target.value)}
+                  rows={3}
+                  className="w-full px-4 py-3 text-sm border-2 border-gray-200 rounded-xl text-gray-700 focus:outline-none focus:ring-4 focus:ring-orange-100 focus:border-orange-400 hover:border-gray-300 transition-all resize-none"
+                  placeholder="Add any important details, contacts, or reminders..."
+                  disabled={loading}
+                />
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="flex-1 px-5 py-3 text-sm font-semibold text-gray-700 bg-gray-100 rounded-xl hover:bg-gray-200 active:scale-95 disabled:opacity-50 transition-all"
+                  disabled={loading}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSubmit}
+                  className="flex-1 px-5 py-3 text-sm font-semibold bg-gradient-to-r from-[#fc7534] via-orange-500 to-pink-500 text-white rounded-xl hover:shadow-xl hover:scale-105 active:scale-95 disabled:opacity-50 disabled:hover:scale-100 transition-all flex items-center justify-center gap-2"
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                      <span>Saving...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Save className="h-4 w-4" />
+                      {isEdit ? "Update Application" : "Create Application"}
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
           </div>
         </div>
-
-        {/* Modal Body */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-5">
-          <div>
-            <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
-              <div className="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center">
-                <Briefcase className="h-4 w-4 text-blue-600" />
-              </div>
-              Job Title *
-            </label>
-            <input
-              type="text"
-              value={formData.JobTitle}
-              onChange={(e) => handleInputChange("JobTitle", e.target.value)}
-              className={`w-full text-gray-500/50 px-4 py-3 border-2 rounded-xl focus:text-gray-500/100 focus:outline-none focus:ring-2 focus:ring-[#f78433]/20 transition-all ${
-                errors.JobTitle
-                  ? "border-red-300 bg-red-50"
-                  : "border-gray-200 hover:border-gray-300 focus:border-[#f78433]"
-              }`}
-              placeholder="e.g., Senior Frontend Developer"
-              disabled={loading}
-            />
-            {errors.JobTitle && (
-              <p className="text-red-500 text-sm mt-2 flex items-center gap-1 bg-red-50 p-2 rounded-lg">
-                <AlertCircle className="h-4 w-4" />
-                {errors.JobTitle}
-              </p>
-            )}
-          </div>
-
-          <div>
-            <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
-              <div className="w-8 h-8 bg-purple-50 rounded-lg flex items-center justify-center">
-                <Building className="h-4 w-4 text-purple-600" />
-              </div>
-              Company *
-            </label>
-            <input
-              type="text"
-              value={formData.Company}
-              onChange={(e) => handleInputChange("Company", e.target.value)}
-              className={`w-full text-gray-500/50 px-4 py-3 border-2 rounded-xl focus:text-gray-500/100 focus:outline-none focus:ring-2 focus:ring-[#f78433]/20 transition-all ${
-                errors.Company
-                  ? "border-red-300 bg-red-50"
-                  : "border-gray-200 hover:border-gray-300 focus:border-[#f78433]"
-              }`}
-              placeholder="e.g., Google, Microsoft, etc."
-              disabled={loading}
-            />
-            {errors.Company && (
-              <p className="text-red-500 text-sm mt-2 flex items-center gap-1 bg-red-50 p-2 rounded-lg">
-                <AlertCircle className="h-4 w-4" />
-                {errors.Company}
-              </p>
-            )}
-          </div>
-
-          <div>
-            <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
-              <div className="w-8 h-8 bg-green-50 rounded-lg flex items-center justify-center">
-                <TrendingUp className="h-4 w-4 text-green-600" />
-              </div>
-              Status
-            </label>
-            <select
-              value={formData.Status}
-              onChange={(e) => handleInputChange("Status", e.target.value)}
-              className="w-full text-gray-500/50 px-4 py-3 border-2 border-gray-200 rounded-xl focus:text-gray-500/100 focus:outline-none focus:ring-2 focus:ring-[#f78433]/20 focus:border-[#f78433] hover:border-gray-300 transition-all bg-white"
-              disabled={loading}
-            >
-              {STATUS_OPTIONS.map((status) => (
-                <option key={status} value={status}>
-                  {status}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
-              <div className="w-8 h-8 bg-amber-50 rounded-lg flex items-center justify-center">
-                <Calendar className="h-4 w-4 text-amber-600" />
-              </div>
-              Application Date *
-            </label>
-            <input
-              type="date"
-              value={formData.ApplicationDate}
-              onChange={(e) =>
-                handleInputChange("ApplicationDate", e.target.value)
-              }
-              className={`w-full px-4 py-3 border-2 text-gray-500/50 rounded-xl focus:text-gray-500/100 focus:outline-none focus:ring-2 focus:ring-[#f78433]/20 transition-all ${
-                errors.ApplicationDate
-                  ? "border-red-300 bg-red-50"
-                  : "border-gray-200 hover:border-gray-300 focus:border-[#f78433]"
-              }`}
-              disabled={loading}
-            />
-            {errors.ApplicationDate && (
-              <p className="text-red-500 text-sm mt-2 flex items-center gap-1 bg-red-50 p-2 rounded-lg">
-                <AlertCircle className="h-4 w-4" />
-                {errors.ApplicationDate}
-              </p>
-            )}
-          </div>
-
-          <div>
-            <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
-              <div className="w-8 h-8 bg-indigo-50 rounded-lg flex items-center justify-center">
-                <FileText className="h-4 w-4 text-indigo-600" />
-              </div>
-              Notes
-            </label>
-            <textarea
-              value={formData.Notes}
-              onChange={(e) => handleInputChange("Notes", e.target.value)}
-              rows={4}
-              className="w-full px-4 py-3 text-gray-500/50 border-2 border-gray-200 rounded-xl focus:text-gray-500/100 focus:outline-none focus:ring-2 focus:ring-[#f78433]/20 focus:border-[#f78433] hover:border-gray-300 transition-all resize-none"
-              placeholder="Any additional notes about this application..."
-              disabled={loading}
-            />
-          </div>
-
-          <div className="flex gap-3 pt-4">
-            <button
-              type="button"
-              onClick={onClose}
-              className="flex-1 px-6 py-3 text-gray-700 bg-gray-100 rounded-xl hover:bg-gray-200 disabled:opacity-50 transition-all font-semibold"
-              disabled={loading}
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="flex-1 px-6 py-3 bg-gradient-to-r from-[#f78433] to-[#ff6b35] text-white rounded-xl hover:shadow-lg disabled:opacity-50 transition-all font-semibold flex items-center justify-center gap-2"
-              disabled={loading}
-            >
-              {loading ? (
-                <>
-                  <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
-                  <span>Saving...</span>
-                </>
-              ) : (
-                <>
-                  <Save className="h-5 w-5" />
-                  {initialData ? "Update" : "Create"}
-                </>
-              )}
-            </button>
-          </div>
-        </form>
       </div>
     </div>
   );
@@ -587,7 +708,7 @@ const JobApplicationForm: React.FC = () => {
                   placeholder="Search by job title or company..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 border-2 text-gray-500 border-gray-200 rounded-xl focus:text-gray-500 focus:outline-none focus:ring-2 focus:ring-[#f78433]/20 focus:border-[#f78433] hover:border-gray-300 transition-all"
+                  className="w-full pl-12 pr-4 py-3 border-2 text-gray-800 border-gray-200 rounded-xl focus:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#f78433]/20 focus:border-[#f78433] hover:border-gray-300 transition-all"
                 />
               </div>
             </div>
@@ -597,7 +718,7 @@ const JobApplicationForm: React.FC = () => {
                 <select
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#f78433]/20 focus:border-[#f78433] hover:border-gray-300 transition-all appearance-none bg-white"
+                  className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl text-gray-500 focus:outline-none focus:ring-2 focus:ring-[#f78433]/20 focus:border-[#f78433] hover:border-gray-300 transition-all appearance-none bg-white"
                 >
                   <option value="">All Statuses</option>
                   {STATUS_OPTIONS.map((status) => (

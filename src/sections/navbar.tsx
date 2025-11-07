@@ -55,22 +55,22 @@ export default function Navbar() {
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center justify-evenly gap-3">
             <a
-              href="/"
+              href="/#features"
               className="hover:text-[#f78433] px-3 py-2 rounded-md transition-colors text-black/60"
             >
               Features
             </a>
             <a
-              href="/"
+              href="/#how-it-works"
               className="hover:text-[#f78433] px-3 py-2 rounded-md transition-colors text-black/60"
             >
               How it Works
             </a>
             <a
-              href="/"
+              href="/#about"
               className="hover:text-[#f78433] px-3 py-2 rounded-md transition-colors text-black/60"
             >
-              Contact
+              About us
             </a>
             <a
               href="/dashboard"

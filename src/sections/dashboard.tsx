@@ -107,7 +107,7 @@ const JobApplicationDashboard: React.FC = () => {
           new Date(b.applicationDate).getTime() -
           new Date(a.applicationDate).getTime()
       )
-      .slice(0, 5);
+      .slice(0, 2);
 
     // Calculate average response time (simplified - days since application)
     const averageResponseTime =
