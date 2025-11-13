@@ -153,31 +153,31 @@ export default function Navbar() {
       {isMenuOpen && (
         <div className="md:hidden border-t bg-[#fcf8f5]">
           <div className="px-4 py-4 space-y-2">
-            <a
-              href="/"
+            <Link
+              href="/#features"
               className="block px-4 py-2.5 rounded-md text-black/60 hover:text-[#f78433] hover:bg-white/50 transition-colors"
             >
               Features
-            </a>
-            <a
-              href="/"
+            </Link>
+            <Link
+              href="/#how-it-works"
               className="block px-4 py-2.5 rounded-md text-black/60 hover:text-[#f78433] hover:bg-white/50 transition-colors"
             >
               How it Works
-            </a>
-            <a
-              href="/"
+            </Link>
+            <Link
+              href="/#about"
               className="block px-4 py-2.5 rounded-md text-black/60 hover:text-[#f78433] hover:bg-white/50 transition-colors"
             >
-              Contact
-            </a>
-            <a
+              About Us
+            </Link>
+            <Link
               href="/dashboard"
               onClick={handleDashboardClick}
               className="block px-4 py-2.5 rounded-md text-black/60 hover:text-[#f78433] hover:bg-white/50 transition-colors"
             >
               Dashboard
-            </a>
+            </Link>
 
             {/* Mobile Auth Section */}
             <div className="pt-3 border-t border-black/10">

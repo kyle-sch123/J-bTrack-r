@@ -68,8 +68,12 @@ export default function AuthPage() {
         await createUserWithEmailAndPassword(auth, email, password);
       }
       // Auth state observer will handle the rest
-    } catch (err: any) {
-      setError(err.message || "An error occurred");
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("An unexpected error occurred");
+      }
     } finally {
       setLoading(false);
     }
@@ -83,8 +87,12 @@ export default function AuthPage() {
     try {
       await signInWithPopup(auth, provider);
       // Auth state observer will handle the rest
-    } catch (err: any) {
-      setError(err.message || "An error occurred");
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("An unexpected error occurred");
+      }
     } finally {
       setLoading(false);
     }
@@ -98,8 +106,12 @@ export default function AuthPage() {
     try {
       await sendPasswordResetEmail(auth, email);
       setResetSent(true);
-    } catch (err: any) {
-      setError(err.message || "An error occurred");
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("An unexpected error occurred");
+      }
     } finally {
       setLoading(false);
     }

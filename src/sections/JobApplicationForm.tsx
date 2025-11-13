@@ -826,7 +826,7 @@ const JobApplicationForm: React.FC = () => {
                       </div>
                       {app.notes && (
                         <p className="text-sm text-gray-600 mt-4 p-3 bg-gradient-to-r from-gray-50 to-orange-50/30 rounded-xl italic border-l-4 border-[#f78433]">
-                          "{app.notes}"
+                          &quot;{app.notes}&quot;
                         </p>
                       )}
                     </div>

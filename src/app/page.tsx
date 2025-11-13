@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import {
   Plus,
   TrendingUp,
@@ -14,11 +13,9 @@ import {
   Users,
   Shield,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
 import Navbar from "@/sections/navbar";
 import HeroSection from "@/sections/heroSection";
 import Footer from "@/sections/footer";
-import { useAuthStore } from "@/store/authStore";
 import {
   Card,
   CardHeader,
