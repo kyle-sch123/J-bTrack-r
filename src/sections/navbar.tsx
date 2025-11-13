@@ -7,6 +7,8 @@ import { useAuthStore } from "@/store/authStore";
 import { signOut } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import Logo from "@/assets/images/JobtrackerLogo.png";
+import Link from "next/link";
+import Image from "next/image";
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -40,45 +42,45 @@ export default function Navbar() {
           {/* Logo */}
           <div className="flex items-center">
             <div className="flex-shrink-0">
-              <a href="/">
-                <img
+              <Link href="/">
+                <Image
                   src={Logo.src}
                   alt="J*b Tr*ckr Logo"
                   height={100}
                   width={100}
                   style={{ borderRadius: "100%", objectFit: "scale-down" }}
                 />
-              </a>
+              </Link>
             </div>
           </div>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center justify-evenly gap-3">
-            <a
+            <Link
               href="/#features"
               className="hover:text-[#f78433] px-3 py-2 rounded-md transition-colors text-black/60"
             >
               Features
-            </a>
-            <a
+            </Link>
+            <Link
               href="/#how-it-works"
               className="hover:text-[#f78433] px-3 py-2 rounded-md transition-colors text-black/60"
             >
               How it Works
-            </a>
-            <a
+            </Link>
+            <Link
               href="/#about"
               className="hover:text-[#f78433] px-3 py-2 rounded-md transition-colors text-black/60"
             >
               About us
-            </a>
-            <a
+            </Link>
+            <Link
               href="/dashboard"
               onClick={handleDashboardClick}
               className="hover:text-[#f78433] px-3 py-2 rounded-md transition-colors text-black/60"
             >
               Dashboard
-            </a>
+            </Link>
           </div>
 
           {/* Desktop Auth Section */}

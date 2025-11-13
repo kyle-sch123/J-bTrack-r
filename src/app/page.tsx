@@ -73,27 +73,6 @@ const features = [
 ];
 
 export default function LandingPage() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const router = useRouter();
-  const uid = useAuthStore((state) => state.uid);
-
-  const scrollToSection = (id: string) => {
-    const element = document.getElementById(id);
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" });
-      setIsMenuOpen(false);
-    }
-  };
-
-  const handleDashboardClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault();
-    if (uid) {
-      router.push("/dashboard");
-    } else {
-      router.push("/auth");
-    }
-  };
-
   return (
     <div className="min-h-screen bg-white scroll-smooth">
       {/*N A V B A R */}
@@ -319,8 +298,8 @@ export default function LandingPage() {
               <span className="text-[#f78433]">4 Simple Steps</span>
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              From application to offer, we've got you covered every step of the
-              way
+              From application to offer, we&apos;ve got you covered every step
+              of the way
             </p>
           </div>
 

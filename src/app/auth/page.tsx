@@ -13,6 +13,8 @@ import { auth } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
 import transLogo from "@/assets/images/JobtrackerLogo-transparent.png";
 import { useAuthStore } from "@/store/authStore";
+import Image from "next/image";
+import Link from "next/link";
 
 export default function AuthPage() {
   const router = useRouter();
@@ -49,31 +51,6 @@ export default function AuthPage() {
 
     return () => unsubscribe();
   }, [setUser, setUid, router]);
-
-  // Function to sync user with your ASP.NET backend
-  const syncUserWithBackend = async (uid: string, email: string | null) => {
-    try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/users/sync`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            firebaseUid: uid,
-            email: email,
-          }),
-        }
-      );
-
-      if (!response.ok) {
-        console.error("Failed to sync user with backend");
-      }
-    } catch (error) {
-      console.error("Error syncing with backend:", error);
-    }
-  };
 
   const handleEmailAuth = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -136,8 +113,8 @@ export default function AuthPage() {
             Reset Password
           </h2>
           <p className="text-gray-600 mb-6">
-            Enter your email address and we'll send you a link to reset your
-            password.
+            Enter your email address and we&apos;ll send you a link to reset
+            your password.
           </p>
 
           {resetSent ? (
@@ -202,15 +179,15 @@ export default function AuthPage() {
       <div className="bg-white h-[100vh]">
         <div className="flex items-center bg-white h-[100px] justify-center md:justify-start">
           <div className="flex-shrink-0">
-            <a href="/">
-              <img
+            <Link href="/">
+              <Image
                 src={transLogo.src}
                 alt="J*b Tr*ckr Logo"
                 height={170}
                 width={170}
                 style={{ objectFit: "scale-down" }}
               />
-            </a>
+            </Link>
           </div>
         </div>
         <div className="flex items-center justify-center align-top bg-white px-4">
@@ -288,8 +265,8 @@ export default function AuthPage() {
               <div className="mt-4 text-center">
                 <p className="text-gray-600">
                   {isLogin
-                    ? "Don't have an account?"
-                    : "Already have an account?"}{" "}
+                    ? `Don\'t have an account? `
+                    : `Already have an account? `}
                   <button
                     type="button"
                     onClick={() => {

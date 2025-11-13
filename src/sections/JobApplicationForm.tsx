@@ -12,7 +12,6 @@ import {
   Calendar,
   Building,
   Briefcase,
-  FileText,
   AlertCircle,
   CheckCircle,
   Sparkles,
@@ -377,9 +376,6 @@ const JobApplicationModal: React.FC<{
               {/* Notes */}
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                  {/* <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center">
-                    <FileText className="h-3.5 w-3.5 text-white" />
-                  </div> */}
                   Notes
                   <span className="text-xs text-gray-400 font-normal ml-1">
                     (optional)
