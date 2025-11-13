@@ -33,7 +33,6 @@ export default function AuthPage() {
       if (user) {
         // User is signed in
         const uid = user.uid;
-        const userEmail = user.email;
 
         // Update Zustand store
         setUser(user);

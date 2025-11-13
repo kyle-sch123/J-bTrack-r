@@ -309,9 +309,6 @@ const JobApplicationModal: React.FC<{
                 {/* Status */}
                 <div className="space-y-2">
                   <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                    <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center">
-                      <TrendingUp className="h-3.5 w-3.5 text-white" />
-                    </div>
                     Status
                   </label>
                   <div className="relative">
@@ -455,8 +452,8 @@ const JobApplicationForm: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
 
-  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
-  const API_BASE_URL_SINGLE = process.env.NEXT_PUBLIC_API_URL_S;
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+
   const uid = useAuthStore((state) => state.uid);
 
   useEffect(() => {
@@ -473,8 +470,11 @@ const JobApplicationForm: React.FC = () => {
       setLoading(true);
       setError(null);
 
+      console.log("user id ", uid);
+      console.log("api url: ", API_BASE_URL);
+
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}?userId=${uid}`
+        `${API_BASE_URL}/jobapplications?userId=${uid}`
       );
 
       if (!response.ok) {
@@ -535,7 +535,7 @@ const JobApplicationForm: React.FC = () => {
 
       console.log(JSON.stringify(newApplication));
 
-      const response = await fetch(`${API_BASE_URL}`, {
+      const response = await fetch(`${API_BASE_URL}/jobapplications`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -578,7 +578,7 @@ const JobApplicationForm: React.FC = () => {
       };
 
       const response = await fetch(
-        `${API_BASE_URL_SINGLE}/${editingApplication.Id}`,
+        `${API_BASE_URL}/jobapplication/${editingApplication.Id}`,
         {
           method: "PUT",
           headers: {
@@ -615,7 +615,7 @@ const JobApplicationForm: React.FC = () => {
     try {
       setError(null);
 
-      const response = await fetch(`${API_BASE_URL_SINGLE}/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/jobapplication/${id}`, {
         method: "DELETE",
       });
 

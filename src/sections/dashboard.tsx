@@ -47,7 +47,7 @@ const JobApplicationDashboard: React.FC = () => {
 
   const uid = useAuthStore((state) => state.uid);
 
-  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
   useEffect(() => {
     if (uid) {
@@ -62,7 +62,9 @@ const JobApplicationDashboard: React.FC = () => {
       setError(null);
 
       // Correct URL with query parameter
-      const response = await fetch(`${API_BASE_URL}?userId=${uid}`);
+      const response = await fetch(
+        `${API_BASE_URL}/jobapplications?userId=${uid}`
+      );
 
       if (!response.ok) {
         throw new Error(`Failed to fetch job applications: ${response.status}`);
