@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Menu, X, LogOut, User } from "lucide-react";
+import { Menu, X, LogOut, User, Settings } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/authStore";
 import { signOut } from "firebase/auth";
@@ -33,6 +33,11 @@ export default function Navbar() {
     } else {
       router.push("/auth");
     }
+  };
+
+  const handleSettings = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    router.push("/settings");
   };
 
   return (
@@ -105,6 +110,13 @@ export default function Navbar() {
                         {user?.email}
                       </p>
                     </div>
+                    <button
+                      onClick={handleSettings}
+                      className="w-full text-left px-4 py-2.5 text-sm flex items-center space-x-2 text-black/60 hover:bg-amber-50 transition-colors"
+                    >
+                      <Settings size={16} />
+                      <span>Settings</span>
+                    </button>
                     <button
                       onClick={handleSignOut}
                       className="w-full text-left px-4 py-2.5 text-sm flex items-center space-x-2 text-black/60 hover:bg-amber-50 transition-colors"
@@ -188,6 +200,13 @@ export default function Navbar() {
                       {user?.email}
                     </p>
                   </div>
+                  <button
+                    onClick={handleSettings}
+                    className="w-full text-left px-4 py-2.5 text-sm flex items-center space-x-2 text-black/60 hover:bg-amber-50 transition-colors"
+                  >
+                    <Settings size={16} />
+                    <span>Settings</span>
+                  </button>
                   <button
                     onClick={handleSignOut}
                     className="w-full text-left px-4 py-2.5 rounded-md text-black/60 hover:text-[#f78433] hover:bg-white/50 transition-colors flex items-center space-x-2"

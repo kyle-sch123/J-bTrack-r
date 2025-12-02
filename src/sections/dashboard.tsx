@@ -13,10 +13,8 @@ import {
   RefreshCw,
   Sparkles,
 } from "lucide-react";
-import { getAuth } from "firebase/auth";
 import { useAuth } from "@/lib/contexts/AuthContext";
 import { useAuthStore } from "@/store/authStore";
-import MetricCard from "@/components/metricCard";
 import StatusBadge from "@/components/statusBadge";
 import { authedFetch } from "@/lib/authedFetch";
 
