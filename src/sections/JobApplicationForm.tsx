@@ -17,20 +17,21 @@ import {
   Sparkles,
   TrendingUp,
 } from "lucide-react";
+import { useAuth } from "@/lib/contexts/AuthContext";
 import { DotLottieReact } from "@lottiefiles/dotlottie-react";
-import { useAuthStore } from "@/store/authStore";
 import StatusBadge from "@/components/statusBadge";
+import { authedFetch } from "@/lib/authedFetch";
 
 // Type definitions
 interface JobApplication {
-  Id: string; // MongoDB _id (capitalized in response)
-  userId: string; // camelCase to match backend
-  jobTitle: string; // camelCase to match backend
-  company: string; // camelCase to match backend
-  status: string; // camelCase to match backend
-  applicationDate: string; // camelCase to match backend
-  notes: string; // camelCase to match backend
-  autoStatusUpdated: boolean; // camelCase to match backend
+  Id: string;
+  userId: string;
+  jobTitle: string;
+  company: string;
+  status: string;
+  applicationDate: string;
+  notes: string;
+  autoStatusUpdated: boolean;
 }
 
 interface FormData {
@@ -93,13 +94,11 @@ const STATUS_COLORS: Record<
   },
 };
 
-//LOTTIE PLAYER
+// Lottie Animation Component
 const LottieAnimation: React.FC<{ src: string }> = ({ src }) => {
   return (
     <DotLottieReact
-      //   src="@/assets/animations/animation.lottie"
-      //src\assets\animations\create-animation.lottie
-      src={`${src}`}
+      src={src}
       loop
       autoplay
       speed={0.6}
@@ -107,6 +106,7 @@ const LottieAnimation: React.FC<{ src: string }> = ({ src }) => {
     />
   );
 };
+
 // Form Modal Component
 const JobApplicationModal: React.FC<{
   isOpen: boolean;
@@ -197,7 +197,6 @@ const JobApplicationModal: React.FC<{
         <div className={`flex ${isEdit ? "flex-row-reverse" : "flex-row"}`}>
           {/* Lottie Animation Side */}
           <div className="hidden md:flex md:w-2/5 bg-gradient-to-br from-orange-50 via-pink-50 to-purple-50 p-8 items-center justify-center relative overflow-hidden">
-            {/* Decorative circles */}
             <div className="absolute top-0 right-0 w-32 h-32 bg-orange-200/30 rounded-full blur-3xl"></div>
             <div className="absolute bottom-0 left-0 w-40 h-40 bg-purple-200/30 rounded-full blur-3xl"></div>
 
@@ -248,9 +247,6 @@ const JobApplicationModal: React.FC<{
               {/* Job Title */}
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                  {/* <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center">
-                    <Briefcase className="h-3.5 w-3.5 text-white" />
-                  </div> */}
                   Job Title
                 </label>
                 <input
@@ -278,9 +274,6 @@ const JobApplicationModal: React.FC<{
               {/* Company */}
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                  {/* <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center">
-                    <Building className="h-3.5 w-3.5 text-white" />
-                  </div> */}
                   Company
                 </label>
                 <input
@@ -352,9 +345,6 @@ const JobApplicationModal: React.FC<{
                 {/* Date */}
                 <div className="space-y-2">
                   <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                    {/* <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-pink-400 to-pink-600 flex items-center justify-center">
-                      <Calendar className="h-3.5 w-3.5 text-white" />
-                    </div> */}
                     Date Applied
                   </label>
                   <input
@@ -430,6 +420,7 @@ const JobApplicationModal: React.FC<{
 
 // Main Job Application Form Component
 const JobApplicationForm: React.FC = () => {
+  const { user, loading: authLoading } = useAuth();
   const [applications, setApplications] = useState<JobApplication[]>([]);
   const [filteredApplications, setFilteredApplications] = useState<
     JobApplication[]
@@ -450,27 +441,27 @@ const JobApplicationForm: React.FC = () => {
 
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
-  const uid = useAuthStore((state) => state.uid);
-
+  // Wait for auth to be ready, then fetch applications
   useEffect(() => {
-    fetchApplications();
-  }, [uid]);
+    if (!authLoading && user) {
+      fetchApplications();
+    }
+  }, [authLoading, user]);
 
   useEffect(() => {
     filterApplications();
   }, [applications, searchTerm, statusFilter]);
 
-  //GET API REQUEST
+  // GET API REQUEST
   const fetchApplications = async () => {
+    if (!user) return;
+
     try {
       setLoading(true);
       setError(null);
 
-      console.log("user id ", uid);
-      console.log("api url: ", API_BASE_URL);
-
-      const response = await fetch(
-        `${API_BASE_URL}/jobapplications?userId=${uid}`
+      const response = await authedFetch(
+        `${API_BASE_URL}/jobapplications?userId=${user.uid}`
       );
 
       if (!response.ok) {
@@ -511,16 +502,16 @@ const JobApplicationForm: React.FC = () => {
     setFilteredApplications(filtered);
   };
 
-  //===== POST HTTP METHOD =====
+  // POST HTTP METHOD
   const createApplication = async (formData: FormData) => {
-    try {
-      console.log("Trying to create a new job appliuaction using -->", uid);
+    if (!user) return;
 
+    try {
       setFormLoading(true);
       setError(null);
 
       const newApplication = {
-        userId: uid,
+        userId: user.uid,
         jobTitle: formData.JobTitle,
         company: formData.Company,
         status: formData.Status,
@@ -529,9 +520,7 @@ const JobApplicationForm: React.FC = () => {
         autoStatusUpdated: false,
       };
 
-      console.log(JSON.stringify(newApplication));
-
-      const response = await fetch(`${API_BASE_URL}/jobapplications`, {
+      const response = await authedFetch(`${API_BASE_URL}/jobapplications`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -558,7 +547,7 @@ const JobApplicationForm: React.FC = () => {
   };
 
   const updateApplication = async (formData: FormData) => {
-    if (!editingApplication) return;
+    if (!editingApplication || !user) return;
 
     try {
       setFormLoading(true);
@@ -573,7 +562,7 @@ const JobApplicationForm: React.FC = () => {
         Notes: formData.Notes,
       };
 
-      const response = await fetch(
+      const response = await authedFetch(
         `${API_BASE_URL}/jobapplication/${editingApplication.Id}`,
         {
           method: "PUT",
@@ -611,9 +600,12 @@ const JobApplicationForm: React.FC = () => {
     try {
       setError(null);
 
-      const response = await fetch(`${API_BASE_URL}/jobapplication/${id}`, {
-        method: "DELETE",
-      });
+      const response = await authedFetch(
+        `${API_BASE_URL}/jobapplication/${id}`,
+        {
+          method: "DELETE",
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Failed to delete job application");
@@ -660,6 +652,42 @@ const JobApplicationForm: React.FC = () => {
       year: "numeric",
     });
   };
+
+  // Show loading while auth initializes
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-[#fcf8f5] via-white to-orange-50 flex justify-center items-center">
+        <div className="text-center">
+          <div className="relative">
+            <div className="animate-spin rounded-full h-24 w-24 border-4 border-orange-100"></div>
+            <div className="animate-spin rounded-full h-24 w-24 border-t-4 border-[#f78433] absolute top-0"></div>
+          </div>
+          <p className="mt-6 text-gray-600 font-medium">Authenticating...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show message if no user
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-[#fcf8f5] via-white to-orange-50 flex justify-center items-center p-6">
+        <div className="max-w-md w-full">
+          <div className="bg-white rounded-2xl shadow-xl p-8 border-2 border-orange-100 text-center">
+            <div className="w-16 h-16 bg-orange-50 rounded-full flex items-center justify-center mb-4 mx-auto">
+              <AlertCircle className="h-8 w-8 text-[#f78433]" />
+            </div>
+            <h3 className="text-xl font-bold text-gray-900 mb-2">
+              Please Log In
+            </h3>
+            <p className="text-gray-600">
+              You need to be logged in to view and manage your job applications.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#fcf8f5] via-white to-orange-50">

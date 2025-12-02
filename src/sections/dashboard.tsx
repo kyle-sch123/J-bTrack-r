@@ -13,9 +13,12 @@ import {
   RefreshCw,
   Sparkles,
 } from "lucide-react";
+import { getAuth } from "firebase/auth";
+import { useAuth } from "@/lib/contexts/AuthContext";
 import { useAuthStore } from "@/store/authStore";
 import MetricCard from "@/components/metricCard";
 import StatusBadge from "@/components/statusBadge";
+import { authedFetch } from "@/lib/authedFetch";
 
 interface JobApplication {
   Id: string; // MongoDB _id (capitalized in response)
@@ -42,6 +45,7 @@ interface DashboardMetrics {
 const JobApplicationDashboard: React.FC = () => {
   const [applications, setApplications] = useState<JobApplication[]>([]);
   const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
+  const { user, loading: authLoading } = useAuth();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -50,20 +54,21 @@ const JobApplicationDashboard: React.FC = () => {
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
   useEffect(() => {
-    if (uid) {
-      // Only fetch if uid exists
+    // Wait for auth to be ready and user to exist
+    if (!authLoading && user) {
       fetchJobApplications();
     }
-  }, [uid]);
+  }, [authLoading, user]);
 
   const fetchJobApplications = async () => {
+    if (!user) return;
+
     try {
       setLoading(true);
       setError(null);
 
-      // Correct URL with query parameter
-      const response = await fetch(
-        `${API_BASE_URL}/jobapplications?userId=${uid}`
+      const response = await authedFetch(
+        `${API_BASE_URL}/jobapplications?userId=${user.uid}`
       );
 
       if (!response.ok) {
@@ -81,6 +86,15 @@ const JobApplicationDashboard: React.FC = () => {
       setLoading(false);
     }
   };
+
+  // if (authLoading) {
+  //   return <div>Authenticating...</div>;
+  // }
+
+  // // Redirect or show message if no user
+  // if (!user) {
+  //   return <div>Please log in to view dashboard</div>;
+  // }
 
   const calculateMetrics = (
     jobApplications: JobApplication[]

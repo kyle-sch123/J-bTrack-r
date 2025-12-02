@@ -14,3 +14,10 @@ const firebaseConfig = {
 // Initialize Firebase only if it hasn't been initialized yet
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
 export const auth = getAuth(app);
+
+// Make auth globally accessible for debugging
+if (typeof window !== "undefined") {
+  (window as any).auth = auth;
+}
+
+
