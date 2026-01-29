@@ -21,6 +21,7 @@ import { useAuth } from "@/lib/contexts/AuthContext";
 import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 import StatusBadge from "@/components/statusBadge";
 import { authedFetch } from "@/lib/authedFetch";
+import ReviewQueue from "@/components/ReviewQueue";
 
 // Type definitions
 interface JobApplication {
@@ -310,7 +311,7 @@ const JobApplicationModal: React.FC<{
                         handleInputChange("Status", e.target.value)
                       }
                       className={`w-full px-4 py-3 text-sm border-2 border-gray-200 rounded-xl font-semibold focus:outline-none focus:ring-4 focus:ring-orange-100 focus:border-orange-400 bg-white hover:border-gray-300 transition-all appearance-none cursor-pointer ${
-                        STATUS_COLORS[formData.Status].text
+                        STATUS_COLORS[formData.Status]?.text ?? "text-gray-700"
                       }`}
                       disabled={loading}
                     >
@@ -720,6 +721,9 @@ const JobApplicationForm: React.FC = () => {
             </button>
           </div>
         </div>
+
+        {/* Review Pending Emails  */}
+        <ReviewQueue uid={user} />
 
         {/* Filters */}
         <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
