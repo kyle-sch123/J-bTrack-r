@@ -461,9 +461,8 @@ const JobApplicationForm: React.FC = () => {
       setLoading(true);
       setError(null);
 
-      const response = await authedFetch(
-        `${API_BASE_URL}/jobapplications?userId=${user.uid}`
-      );
+      // The backend scopes results to the authenticated user via the JWT.
+      const response = await authedFetch(`${API_BASE_URL}/jobapplications`);
 
       if (!response.ok) {
         throw new Error("Failed to fetch job applications");
@@ -554,13 +553,16 @@ const JobApplicationForm: React.FC = () => {
       setFormLoading(true);
       setError(null);
 
+      // Backend binds camelCase keys (PropertyNamingPolicy = null, case-sensitive).
+      // These overrides must be camelCase or the spread's original values win and
+      // the user's edits are silently dropped.
       const updatedApplication = {
         ...editingApplication,
-        JobTitle: formData.JobTitle,
-        Company: formData.Company,
-        Status: formData.Status,
-        ApplicationDate: new Date(formData.ApplicationDate).toISOString(),
-        Notes: formData.Notes,
+        jobTitle: formData.JobTitle,
+        company: formData.Company,
+        status: formData.Status,
+        applicationDate: new Date(formData.ApplicationDate).toISOString(),
+        notes: formData.Notes,
       };
 
       const response = await authedFetch(
@@ -723,7 +725,7 @@ const JobApplicationForm: React.FC = () => {
         </div>
 
         {/* Review Pending Emails  */}
-        <ReviewQueue uid={user} />
+        <ReviewQueue uid={user.uid} />
 
         {/* Filters */}
         <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">

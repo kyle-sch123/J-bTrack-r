@@ -57,14 +57,7 @@ export default function SettingsPage() {
       setLoading(true);
       setError(null);
 
-      const token = await user?.getIdToken();
-
-      const response = await fetch(`${API_BASE_URL}/auth/gmail/status`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await authedFetch(`${API_BASE_URL}/auth/gmail/status`);
 
       if (!response.ok) throw new Error("Failed to get Gmail status");
 
@@ -85,11 +78,7 @@ export default function SettingsPage() {
       setActionLoading(true);
       setError(null);
 
-      const token = await user?.getIdToken();
-
-      const response = await authedFetch(`${API_BASE_URL}/auth/gmail/connect`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await authedFetch(`${API_BASE_URL}/auth/gmail/connect`);
 
       if (!response.ok) throw new Error("Failed to initiate Gmail connection");
 
@@ -111,13 +100,8 @@ export default function SettingsPage() {
       setActionLoading(true);
       setError(null);
 
-      const token = await user?.getIdToken();
-
-      const response = await fetch(`${API_BASE_URL}/auth/gmail/disconnect`, {
+      const response = await authedFetch(`${API_BASE_URL}/auth/gmail/disconnect`, {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
       });
 
       if (!response.ok) throw new Error("Failed to disconnect Gmail");

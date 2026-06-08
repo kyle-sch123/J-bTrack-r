@@ -1,12 +1,22 @@
 import { useState, useEffect } from "react";
 import { authedFetch } from "@/lib/authedFetch";
 
+// Matches what the AI pipeline extracted. The backend serializes these with
+// PascalCase keys (PropertyNamingPolicy = null), so mirror that here.
+interface ExtractedData {
+  CompanyName?: string | null;
+  Position?: string | null;
+  ApplicationStatus?: string | null;
+  Confidence?: number;
+}
+
 interface Email {
   id: string;
   subject: string;
-  sender: string;
-  body: string;
-  // Add other fields as needed
+  from: string;
+  date: string;
+  extractedData?: ExtractedData | null;
+  processingStatus: string;
 }
 
 interface ReviewQueueData {
@@ -109,8 +119,21 @@ export default function ReviewQueue({ uid }: { uid: string }) {
             <li key={email.id} className="email-item">
               <div>
                 <h3>{email.subject}</h3>
-                <p>From: {email.sender}</p>
-                <p>{email.body}</p>
+                <p>From: {email.from}</p>
+                {email.extractedData && (
+                  <p>
+                    {email.extractedData.CompanyName ?? "Unknown company"}
+                    {email.extractedData.Position
+                      ? ` — ${email.extractedData.Position}`
+                      : ""}
+                    {email.extractedData.ApplicationStatus
+                      ? ` (${email.extractedData.ApplicationStatus})`
+                      : ""}
+                    {typeof email.extractedData.Confidence === "number"
+                      ? ` · ${Math.round(email.extractedData.Confidence)}% confidence`
+                      : ""}
+                  </p>
+                )}
               </div>
               <div className="actions">
                 <button onClick={() => handleApprove(email.id)}>Approve</button>

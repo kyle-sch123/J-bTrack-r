@@ -65,9 +65,8 @@ const JobApplicationDashboard: React.FC = () => {
       setLoading(true);
       setError(null);
 
-      const response = await authedFetch(
-        `${API_BASE_URL}/jobapplications?userId=${user.uid}`
-      );
+      // The backend scopes results to the authenticated user via the JWT.
+      const response = await authedFetch(`${API_BASE_URL}/jobapplications`);
 
       if (!response.ok) {
         throw new Error(`Failed to fetch job applications: ${response.status}`);
