@@ -223,6 +223,35 @@ Severity labels: 🔴 critical · 🟠 high · 🟡 medium · 🟢 low/polish.
 
 ## Frontend
 
+> **Remediation status — updated 2026-06-09.** Most frontend findings below have
+> been addressed; the original finding text is kept for reference.
+> Legend: ✅ fixed · 🟡 partial/in-progress · ⏸️ deferred.
+>
+> **Correctness**
+> - ✅ Update payload sends camelCase keys (edits persist).
+> - ✅ `StatusBadge` lowercases its input before matching; covers the full status set.
+> - ✅ `ReviewQueue` reads the fields the API actually returns and renders `extractedData`.
+> - ✅ `ReviewQueue` receives `uid={user.uid}` (prop type is honest).
+> - ✅ "Response Rate" renders `—` when there are no applications (no more NaN%).
+>
+> **Architecture & duplication**
+> - ✅ `authStore` shrunk to `{ uid, email }` (serializable); `AuthContext` remains
+>   the source of truth for the Firebase `User`. Navbar/auth page updated.
+> - ✅ Deleted dead `src/lib/api/api-client.ts` (endpoints didn't exist; unused).
+> - ✅ `AuthContext` no longer force-refreshes the ID token on every auth state change.
+> - ✅ Settings page routes all calls through `authedFetch`.
+> - ⏸️ `authedFetch` non-string-body retry caveat — all callers pass strings; left as-is.
+>
+> **UX / polish**
+> - 🟡 Marketing copy: honest rewrite of hero/landing in progress (uncommitted working tree).
+> - ✅ Decorative bell icon removed from navbar.
+> - ✅ `about="enter your password"` typo removed.
+> - ✅ `window.auth` debug global gated to non-production (typed, no `as any`).
+> - ✅ `?userId=` query param dropped from `GET /jobapplications` calls.
+> - ✅ Deleted unused `MetricCard`.
+> - ⏸️ Newsletter form stub, `/dashboard` auth gating, commented-out hero block,
+>   shared `JobApplication` type extraction, `next.config.ts` — deferred.
+
 ### Correctness bugs
 
 - 🔴 **Application updates send PascalCase fields that the API ignores**

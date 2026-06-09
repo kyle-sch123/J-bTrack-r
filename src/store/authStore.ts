@@ -1,24 +1,24 @@
 // store/authStore.ts
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { User } from 'firebase/auth';
 
+// Persist only serializable identity fields. The full Firebase User object is
+// mostly non-serializable internals and doesn't survive a JSON round-trip;
+// components that need it should use AuthContext (the source of truth).
 interface AuthState {
-  user: User | null;
   uid: string | null;
-  setUser: (user: User | null) => void;
-  setUid: (uid: string | null) => void;
+  email: string | null;
+  setAuth: (uid: string | null, email: string | null) => void;
   clearAuth: () => void;
 }
 
 export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
-      user: null,
       uid: null,
-      setUser: (user) => set({ user }),
-      setUid: (uid) => set({ uid }),
-      clearAuth: () => set({ user: null, uid: null }),
+      email: null,
+      setAuth: (uid, email) => set({ uid, email }),
+      clearAuth: () => set({ uid: null, email: null }),
     }),
     {
       name: 'auth-storage',

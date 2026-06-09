@@ -1,7 +1,7 @@
 "use client";
 
 import { useAuth } from "@/lib/contexts/AuthContext";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { authedFetch } from "@/lib/authedFetch";
 import Navbar from "@/sections/navbar";
@@ -30,7 +30,17 @@ interface GmailStatusResponse {
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
+// useSearchParams() must live under a Suspense boundary or Next.js fails the
+// production build when prerendering this page.
 export default function SettingsPage() {
+  return (
+    <Suspense fallback={null}>
+      <SettingsPageContent />
+    </Suspense>
+  );
+}
+
+function SettingsPageContent() {
   const { user, loading: authLoading } = useAuth();
   const searchParams = useSearchParams();
 

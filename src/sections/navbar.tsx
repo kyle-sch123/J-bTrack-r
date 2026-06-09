@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Menu, X, LogOut, User, Settings, Bell } from "lucide-react";
+import { Menu, X, LogOut, Settings } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
 import { useAuthStore } from "@/store/authStore";
 import { signOut } from "firebase/auth";
@@ -16,7 +16,7 @@ export default function Navbar() {
   const profileRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const pathname = usePathname();
-  const { uid, user, clearAuth } = useAuthStore();
+  const { uid, email, clearAuth } = useAuthStore();
 
   // Close profile dropdown when clicking outside
   useEffect(() => {
@@ -69,7 +69,7 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="w-full z-50 p-2 bg-[#fcf8f5]">
+    <nav className="w-full z-100 p-2 bg-[#fff8ef]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
@@ -134,11 +134,6 @@ export default function Navbar() {
                 >
                   <Settings className="w-5 h-5" />
                 </button>
-                <button className="w-10 h-10 rounded-full flex items-center justify-center text-gray-500 hover:text-gray-700 hover:bg-white border border-transparent hover:border-gray-200 transition-all duration-200 relative">
-                  <Bell className="w-5 h-5" />
-                  <span className="absolute top-2 right-2 w-2 h-2 bg-[#f78433] rounded-full" />
-                </button>
-
                 {/* User Avatar */}
                 <div className="relative ml-1" ref={profileRef}>
                   <button
@@ -151,29 +146,29 @@ export default function Navbar() {
                   >
                     <div className="w-full h-full bg-gradient-to-br from-[#f78433] to-[#ff6b35] flex items-center justify-center">
                       <span className="text-white text-sm font-semibold">
-                        {user?.email?.charAt(0).toUpperCase() || "U"}
+                        {email?.charAt(0).toUpperCase() || "U"}
                       </span>
                     </div>
                   </button>
 
                   {/* Profile Dropdown */}
                   {isProfileOpen && (
-                    <div className="absolute right-0 mt-2 w-64 origin-top-right animate-in fade-in slide-in-from-top-2 duration-200">
+                    <div className="absolute z-100 right-0 mt-2 w-64 origin-top-right animate-in fade-in slide-in-from-top-2 duration-200">
                       <div className="bg-white rounded-2xl shadow-xl shadow-black/10 border border-gray-100 overflow-hidden">
                         {/* User Info Header */}
                         <div className="px-4 py-4 border-b border-gray-100">
                           <div className="flex items-center gap-3">
                             <div className="w-11 h-11 rounded-full bg-gradient-to-br from-[#f78433] to-[#ff6b35] flex items-center justify-center">
                               <span className="text-white text-lg font-semibold">
-                                {user?.email?.charAt(0).toUpperCase() || "U"}
+                                {email?.charAt(0).toUpperCase() || "U"}
                               </span>
                             </div>
                             <div className="flex-1 min-w-0">
                               <p className="text-sm font-semibold text-gray-900 truncate">
-                                {user?.email?.split("@")[0] || "User"}
+                                {email?.split("@")[0] || "User"}
                               </p>
                               <p className="text-xs text-gray-500 truncate">
-                                {user?.email}
+                                {email}
                               </p>
                             </div>
                           </div>
@@ -290,15 +285,15 @@ export default function Navbar() {
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#f78433] to-[#ff6b35] flex items-center justify-center">
                       <span className="text-white font-semibold">
-                        {user?.email?.charAt(0).toUpperCase() || "U"}
+                        {email?.charAt(0).toUpperCase() || "U"}
                       </span>
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-semibold text-gray-900 truncate">
-                        {user?.email?.split("@")[0] || "User"}
+                        {email?.split("@")[0] || "User"}
                       </p>
                       <p className="text-xs text-gray-500 truncate">
-                        {user?.email}
+                        {email}
                       </p>
                     </div>
                   </div>

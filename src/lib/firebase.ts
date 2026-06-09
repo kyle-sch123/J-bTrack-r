@@ -15,9 +15,15 @@ const firebaseConfig = {
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
 export const auth = getAuth(app);
 
-// Make auth globally accessible for debugging
-if (typeof window !== "undefined") {
-  (window as any).auth = auth;
+declare global {
+  interface Window {
+    auth?: typeof auth;
+  }
+}
+
+// Make auth globally accessible for debugging (dev only — don't ship to prod)
+if (typeof window !== "undefined" && process.env.NODE_ENV !== "production") {
+  window.auth = auth;
 }
 
 

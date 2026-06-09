@@ -18,7 +18,7 @@ import Link from "next/link";
 
 export default function AuthPage() {
   const router = useRouter();
-  const { setUser, setUid } = useAuthStore();
+  const { setAuth, clearAuth } = useAuthStore();
 
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
@@ -33,24 +33,19 @@ export default function AuthPage() {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        // User is signed in
-        const uid = user.uid;
-
         // Update Zustand store
-        setUser(user);
-        setUid(uid);
+        setAuth(user.uid, user.email);
 
         // Redirect to dashboard or home
         router.push("/dashboard");
       } else {
         // User is signed out
-        setUser(null);
-        setUid(null);
+        clearAuth();
       }
     });
 
     return () => unsubscribe();
-  }, [setUser, setUid, router]);
+  }, [setAuth, clearAuth, router]);
 
   const handleEmailAuth = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -230,7 +225,6 @@ export default function AuthPage() {
                 <input
                   id="password"
                   type="password"
-                  about="enter your password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required

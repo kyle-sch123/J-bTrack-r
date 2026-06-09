@@ -23,19 +23,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   useEffect(() => {
     const auth = getAuth();
 
-    // onAuthStateChanged handles token refresh automatically
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+    // onAuthStateChanged handles token refresh automatically; no need to force
+    // a refresh here — getIdToken(false) auto-refreshes when expired, and
+    // authedFetch retries with a forced refresh on 401.
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       setUser(firebaseUser);
       setLoading(false);
-
-      // Optional: Force token refresh on auth state change
-      if (firebaseUser) {
-        try {
-          await firebaseUser.getIdToken(true); // force refresh
-        } catch (error) {
-          console.error("Error refreshing token:", error);
-        }
-      }
     });
 
     return () => unsubscribe();

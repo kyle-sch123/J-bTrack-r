@@ -29,9 +29,8 @@ src/
 ├── app/           # Next.js App Router pages
 ├── sections/      # Page-level section components (navbar, dashboard, forms)
 ├── components/    # Reusable UI components
-├── lib/           # Utilities, contexts, API client
+├── lib/           # Utilities, contexts
 │   ├── contexts/  # React contexts (AuthContext)
-│   ├── api/       # API client class
 │   └── firebase.ts
 └── store/         # Zustand stores
 ```

@@ -14,7 +14,6 @@ import {
   Sparkles,
 } from "lucide-react";
 import { useAuth } from "@/lib/contexts/AuthContext";
-import { useAuthStore } from "@/store/authStore";
 import StatusBadge from "@/components/statusBadge";
 import { authedFetch } from "@/lib/authedFetch";
 
@@ -46,8 +45,6 @@ const JobApplicationDashboard: React.FC = () => {
   const { user, loading: authLoading } = useAuth();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  const uid = useAuthStore((state) => state.uid);
 
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
@@ -278,13 +275,14 @@ const JobApplicationDashboard: React.FC = () => {
                 Response Rate
               </h3>
               <p className="text-4xl font-bold text-gray-900">
-                {Math.round(
-                  (((metrics.statusCounts["Interview Scheduled"] || 0) +
-                    (metrics.statusCounts["Accepted"] || 0)) /
-                    metrics.totalApplications) *
-                    100
-                )}
-                %
+                {metrics.totalApplications === 0
+                  ? "—"
+                  : `${Math.round(
+                      (((metrics.statusCounts["Interview Scheduled"] || 0) +
+                        (metrics.statusCounts["Accepted"] || 0)) /
+                        metrics.totalApplications) *
+                        100
+                    )}%`}
               </p>
             </div>
           </div>
