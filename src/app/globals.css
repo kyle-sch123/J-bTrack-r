@@ -1,26 +1,131 @@
 @import "tailwindcss";
 
+/* ── Hearth design tokens ──────────────────────────────────────────────
+   A warm craft-ledger palette: parchment paper, espresso ink,
+   terracotta clay, and a small set of muted status hues. */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --paper: #f5ecdc; /* warm parchment background */
+  --parch: #ece0c8; /* deeper parchment, alt sections */
+  --card: #fcf8ef; /* raised card surface */
+  --ink: #32261a; /* espresso text */
+  --ink-soft: #6d5c47;
+  --ink-faint: #a08c6f;
+  --line: #ddcdac; /* warm hairline borders */
+  --clay: #b8451f; /* terracotta — primary accent */
+  --clay-deep: #96350f;
+  --clay-wash: #f0d9c4;
+  --marigold: #c07a14; /* interview scheduled */
+  --sage: #76814f; /* interview completed */
+  --moss: #4c6b4f; /* accepted / offer */
+  --dusk: #5a6f86; /* applied */
+  --rose: #a04d54; /* rejected */
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  --color-paper: var(--paper);
+  --color-parch: var(--parch);
+  --color-card: var(--card);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-ink-faint: var(--ink-faint);
+  --color-line: var(--line);
+  --color-clay: var(--clay);
+  --color-clay-deep: var(--clay-deep);
+  --color-clay-wash: var(--clay-wash);
+  --color-marigold: var(--marigold);
+  --color-sage: var(--sage);
+  --color-moss: var(--moss);
+  --color-dusk: var(--dusk);
+  --color-rose: var(--rose);
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --font-display: var(--font-fraunces);
+  --font-sans: var(--font-karla);
+  --font-mono: var(--font-spline-mono);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-karla), Georgia, serif;
+}
+
+/* Paper grain — a single fixed noise layer over everything. */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  pointer-events: none;
+  opacity: 0.55;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='0.05'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+::selection {
+  background: var(--clay);
+  color: var(--paper);
+}
+
+:focus-visible {
+  outline: 2px solid var(--clay);
+  outline-offset: 2px;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--paper);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--line);
+  border-radius: 8px;
+  border: 2px solid var(--paper);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--ink-faint);
+}
+
+/* ── Shared motion ───────────────────────────────────────────────── */
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.rise {
+  opacity: 0;
+  animation: rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.rise-1 {
+  animation-delay: 0.05s;
+}
+.rise-2 {
+  animation-delay: 0.15s;
+}
+.rise-3 {
+  animation-delay: 0.28s;
+}
+.rise-4 {
+  animation-delay: 0.42s;
+}
+.rise-5 {
+  animation-delay: 0.55s;
+}
+.rise-6 {
+  animation-delay: 0.7s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rise {
+    animation: none;
+    opacity: 1;
+  }
 }

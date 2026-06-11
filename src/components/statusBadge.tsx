@@ -1,38 +1,27 @@
-// Status Badge Component
+// Stamp-style status badge — mono small caps with a tinted ink pad.
+// Statuses arrive capitalised from the API ("Applied", "Interview Scheduled", …)
+const STATUS_STYLES: Record<string, string> = {
+  applied: "text-dusk border-dusk/40 bg-dusk/10",
+  "interview scheduled": "text-marigold border-marigold/40 bg-marigold/10",
+  "interview completed": "text-sage border-sage/45 bg-sage/10",
+  "in progress": "text-marigold border-marigold/40 bg-marigold/10",
+  accepted: "text-moss border-moss/40 bg-moss/10",
+  offer: "text-moss border-moss/40 bg-moss/10",
+  rejected: "text-rose border-rose/40 bg-rose/10",
+  withdrawn: "text-ink-faint border-line bg-ink/5",
+  declined: "text-ink-faint border-line bg-ink/5",
+  "on hold": "text-ink-faint border-line bg-ink/5",
+};
+
 const StatusBadge: React.FC<{ status: string }> = ({ status }) => {
-  const getStatusColor = (status: string) => {
-    // Statuses arrive capitalised from the API ("Applied", "Interview Scheduled", …)
-    switch (status.toLowerCase()) {
-      case "applied":
-        return "bg-blue-100 text-blue-800";
-      case "interview scheduled":
-        return "bg-purple-100 text-purple-800";
-      case "interview completed":
-        return "bg-indigo-100 text-indigo-800";
-      case "rejected":
-        return "bg-red-100 text-red-800";
-      case "accepted":
-        return "bg-green-100 text-green-800";
-      case "offer":
-        return "bg-green-100 text-green-800";
-      case "in progress":
-        return "bg-yellow-100 text-yellow-800";
-      case "withdrawn":
-      case "declined":
-        return "bg-gray-100 text-gray-800";
-      case "on hold":
-        return "bg-yellow-100 text-yellow-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
+  const style =
+    STATUS_STYLES[status.toLowerCase()] ?? "text-ink-faint border-line bg-ink/5";
 
   return (
     <span
-      className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
-        status
-      )}`}
+      className={`inline-flex items-center gap-1.5 rounded border px-2 py-0.5 font-mono text-[10px] font-medium uppercase tracking-[0.14em] whitespace-nowrap ${style}`}
     >
+      <span className="block h-1 w-1 rounded-full bg-current" />
       {status}
     </span>
   );

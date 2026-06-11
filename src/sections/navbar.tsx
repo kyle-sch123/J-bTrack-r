@@ -6,9 +6,8 @@ import { useRouter, usePathname } from "next/navigation";
 import { useAuthStore } from "@/store/authStore";
 import { signOut } from "firebase/auth";
 import { auth } from "@/lib/firebase";
-import Logo from "@/assets/images/JobtrackerLogo-transparent.png";
 import Link from "next/link";
-import Image from "next/image";
+import SunMark from "@/components/SunMark";
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -59,7 +58,7 @@ export default function Navbar() {
   const navLinks = [
     { href: "/dashboard", label: "Dashboard", requiresAuth: true },
     { href: "/#features", label: "Features", requiresAuth: false },
-    { href: "/#how-it-works", label: "How it Works", requiresAuth: false },
+    { href: "/#how-it-works", label: "How it works", requiresAuth: false },
     { href: "/#about", label: "About", requiresAuth: false },
   ];
 
@@ -68,129 +67,116 @@ export default function Navbar() {
     return pathname === href;
   };
 
+  const desktopLinkClass = (active: boolean) =>
+    `relative px-3 py-2 font-mono text-[11px] uppercase tracking-[0.18em] transition-colors duration-200 ${
+      active ? "text-clay" : "text-ink-soft hover:text-clay"
+    }`;
+
+  const mobileLinkClass = (active: boolean) =>
+    `flex items-center px-4 py-3 rounded-xl font-mono text-xs uppercase tracking-[0.18em] transition-colors ${
+      active ? "bg-ink text-paper" : "text-ink-soft hover:bg-card hover:text-ink"
+    }`;
+
   return (
-    <nav className="w-full z-100 p-2 bg-[#fff8ef]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          {/* Logo */}
-          <Link href="/" className="flex-shrink-0">
-            <Image
-              src={Logo.src}
-              alt="Job Trackr Logo"
-              height={125}
-              width={125}
-              className="rounded-xl object-cover"
-            />
+    <nav className="sticky top-0 z-50 w-full border-b border-line bg-paper/90 backdrop-blur-sm">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="flex h-16 items-center justify-between">
+          {/* Wordmark */}
+          <Link href="/" className="group flex items-center gap-2.5">
+            <SunMark className="h-7 w-7 text-clay transition-transform duration-500 group-hover:-translate-y-0.5" />
+            <span className="font-display text-xl tracking-tight text-ink">
+              Job <span className="italic">Trackr</span>
+            </span>
           </Link>
 
-          {/* Center Navigation - Pill Container */}
-          <div className="hidden md:flex items-center">
-            <div className="flex items-center gap-1 p-1 bg-white rounded-full border border-gray-200 shadow-sm">
-              {navLinks.map((link) => {
-                const active = isActive(link.href);
+          {/* Desktop nav */}
+          <div className="hidden items-center gap-1 md:flex">
+            {navLinks.map((link) => {
+              const active = isActive(link.href);
 
-                if (link.requiresAuth && link.href === "/dashboard") {
-                  return (
-                    <Link
-                      key={link.href}
-                      href={link.href}
-                      onClick={handleDashboardClick}
-                      className={`px-4 py-2 text-sm font-medium rounded-full transition-all duration-200 ${
-                        active
-                          ? "bg-gray-900 text-white shadow-sm"
-                          : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-                      }`}
-                    >
-                      {link.label}
-                    </Link>
-                  );
-                }
-
+              if (link.requiresAuth && link.href === "/dashboard") {
                 return (
                   <Link
                     key={link.href}
                     href={link.href}
-                    className={`px-4 py-2 text-sm font-medium rounded-full transition-all duration-200 ${
-                      active
-                        ? "bg-gray-900 text-white shadow-sm"
-                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-                    }`}
+                    onClick={handleDashboardClick}
+                    className={desktopLinkClass(active)}
                   >
                     {link.label}
                   </Link>
                 );
-              })}
-            </div>
+              }
+
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={desktopLinkClass(active)}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
           </div>
 
-          {/* Right Section */}
-          <div className="hidden md:flex items-center gap-2">
+          {/* Right section */}
+          <div className="hidden items-center gap-2 md:flex">
             {uid ? (
               <>
-                {/* Icon Buttons */}
                 <button
                   onClick={handleSettings}
-                  className="w-10 h-10 rounded-full flex items-center justify-center text-gray-500 hover:text-gray-700 hover:bg-white border border-transparent hover:border-gray-200 transition-all duration-200"
+                  className="grid h-10 w-10 place-items-center rounded-full text-ink-soft transition-colors duration-200 hover:bg-card hover:text-ink"
+                  aria-label="Settings"
                 >
-                  <Settings className="w-5 h-5" />
+                  <Settings className="h-[18px] w-[18px]" strokeWidth={1.75} />
                 </button>
-                {/* User Avatar */}
+
+                {/* Avatar + dropdown */}
                 <div className="relative ml-1" ref={profileRef}>
                   <button
                     onClick={() => setIsProfileOpen(!isProfileOpen)}
-                    className={`w-10 h-10 rounded-full overflow-hidden border-2 transition-all duration-200 ${
+                    className={`grid h-10 w-10 place-items-center overflow-hidden rounded-full bg-clay font-display text-base text-paper transition-shadow duration-200 ${
                       isProfileOpen
-                        ? "border-[#f78433] ring-4 ring-orange-100"
-                        : "border-gray-200 hover:border-gray-300"
+                        ? "ring-2 ring-clay ring-offset-2 ring-offset-paper"
+                        : "hover:ring-2 hover:ring-line hover:ring-offset-2 hover:ring-offset-paper"
                     }`}
                   >
-                    <div className="w-full h-full bg-gradient-to-br from-[#f78433] to-[#ff6b35] flex items-center justify-center">
-                      <span className="text-white text-sm font-semibold">
-                        {email?.charAt(0).toUpperCase() || "U"}
-                      </span>
-                    </div>
+                    {email?.charAt(0).toUpperCase() || "U"}
                   </button>
 
-                  {/* Profile Dropdown */}
                   {isProfileOpen && (
-                    <div className="absolute z-100 right-0 mt-2 w-64 origin-top-right animate-in fade-in slide-in-from-top-2 duration-200">
-                      <div className="bg-white rounded-2xl shadow-xl shadow-black/10 border border-gray-100 overflow-hidden">
-                        {/* User Info Header */}
-                        <div className="px-4 py-4 border-b border-gray-100">
+                    <div className="absolute right-0 z-50 mt-3 w-64 origin-top-right">
+                      <div className="overflow-hidden rounded-2xl border border-line bg-card shadow-[0_24px_48px_-20px_rgba(50,38,26,0.35)]">
+                        <div className="border-b border-line px-4 py-4">
                           <div className="flex items-center gap-3">
-                            <div className="w-11 h-11 rounded-full bg-gradient-to-br from-[#f78433] to-[#ff6b35] flex items-center justify-center">
-                              <span className="text-white text-lg font-semibold">
-                                {email?.charAt(0).toUpperCase() || "U"}
-                              </span>
+                            <div className="grid h-10 w-10 place-items-center rounded-full bg-clay font-display text-lg text-paper">
+                              {email?.charAt(0).toUpperCase() || "U"}
                             </div>
-                            <div className="flex-1 min-w-0">
-                              <p className="text-sm font-semibold text-gray-900 truncate">
+                            <div className="min-w-0 flex-1">
+                              <p className="truncate text-sm font-semibold text-ink">
                                 {email?.split("@")[0] || "User"}
                               </p>
-                              <p className="text-xs text-gray-500 truncate">
+                              <p className="truncate font-mono text-[11px] text-ink-faint">
                                 {email}
                               </p>
                             </div>
                           </div>
                         </div>
 
-                        {/* Menu Items */}
                         <div className="p-2">
                           <button
                             onClick={handleSettings}
-                            className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-gray-700 hover:bg-gray-50 rounded-xl transition-colors"
+                            className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-ink-soft transition-colors hover:bg-paper hover:text-ink"
                           >
-                            <Settings className="w-4 h-4 text-gray-500" />
-                            <span className="font-medium">Settings</span>
+                            <Settings className="h-4 w-4" strokeWidth={1.75} />
+                            Settings
                           </button>
                           <button
                             onClick={handleSignOut}
-                            className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-gray-700 hover:bg-red-50 rounded-xl transition-colors group"
+                            className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-ink-soft transition-colors hover:bg-rose/10 hover:text-rose"
                           >
-                            <LogOut className="w-4 h-4 text-gray-500 group-hover:text-red-600 transition-colors" />
-                            <span className="font-medium group-hover:text-red-600 transition-colors">
-                              Sign Out
-                            </span>
+                            <LogOut className="h-4 w-4" strokeWidth={1.75} />
+                            Sign out
                           </button>
                         </div>
                       </div>
@@ -199,45 +185,45 @@ export default function Navbar() {
                 </div>
               </>
             ) : (
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-4">
                 <button
                   onClick={() => router.push("/auth")}
-                  className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
+                  className="font-mono text-[11px] uppercase tracking-[0.18em] text-ink-soft transition-colors hover:text-clay"
                 >
-                  Sign In
+                  Sign in
                 </button>
                 <button
                   onClick={() => router.push("/auth")}
-                  className="px-5 py-2.5 text-sm font-semibold text-white bg-[#f78433] hover:bg-[#e57429] rounded-full transition-colors shadow-sm"
+                  className="rounded-full bg-ink px-5 py-2.5 text-sm font-semibold text-paper transition-colors duration-300 hover:bg-clay"
                 >
-                  Get Started
+                  Get started
                 </button>
               </div>
             )}
           </div>
 
-          {/* Mobile Menu Button */}
+          {/* Mobile menu button */}
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="md:hidden w-10 h-10 flex items-center justify-center rounded-full hover:bg-white border border-transparent hover:border-gray-200 transition-all"
+            className="grid h-10 w-10 place-items-center rounded-full text-ink transition-colors hover:bg-card md:hidden"
           >
             <span className="sr-only">Toggle menu</span>
             {isMenuOpen ? (
-              <X className="w-5 h-5 text-gray-700" />
+              <X className="h-5 w-5" strokeWidth={1.75} />
             ) : (
-              <Menu className="w-5 h-5 text-gray-700" />
+              <Menu className="h-5 w-5" strokeWidth={1.75} />
             )}
           </button>
         </div>
       </div>
 
-      {/* Mobile Navigation */}
+      {/* Mobile navigation */}
       <div
-        className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out ${
+        className={`overflow-hidden transition-all duration-300 ease-in-out md:hidden ${
           isMenuOpen ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
         }`}
       >
-        <div className="px-4 py-4 bg-[#fcf8f5] border-t border-gray-200 space-y-1">
+        <div className="space-y-1 border-t border-line bg-paper px-4 py-4">
           {navLinks.map((link) => {
             const active = isActive(link.href);
 
@@ -250,11 +236,7 @@ export default function Navbar() {
                     handleDashboardClick(e);
                     setIsMenuOpen(false);
                   }}
-                  className={`flex items-center px-4 py-3 rounded-xl font-medium transition-colors ${
-                    active
-                      ? "bg-gray-900 text-white"
-                      : "text-gray-700 hover:bg-gray-50"
-                  }`}
+                  className={mobileLinkClass(active)}
                 >
                   {link.label}
                 </Link>
@@ -266,33 +248,27 @@ export default function Navbar() {
                 key={link.href}
                 href={link.href}
                 onClick={() => setIsMenuOpen(false)}
-                className={`flex items-center px-4 py-3 rounded-xl font-medium transition-colors ${
-                  active
-                    ? "bg-gray-900 text-white"
-                    : "text-gray-700 hover:bg-gray-50"
-                }`}
+                className={mobileLinkClass(active)}
               >
                 {link.label}
               </Link>
             );
           })}
 
-          {/* Mobile Auth Section */}
-          <div className="pt-3 mt-3 border-t border-gray-100">
+          {/* Mobile auth section */}
+          <div className="mt-3 border-t border-line pt-3">
             {uid ? (
               <>
-                <div className="px-4 py-3 mb-2 bg-gray-50 rounded-xl">
+                <div className="mb-2 rounded-xl bg-card px-4 py-3">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#f78433] to-[#ff6b35] flex items-center justify-center">
-                      <span className="text-white font-semibold">
-                        {email?.charAt(0).toUpperCase() || "U"}
-                      </span>
+                    <div className="grid h-10 w-10 place-items-center rounded-full bg-clay font-display text-paper">
+                      {email?.charAt(0).toUpperCase() || "U"}
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-gray-900 truncate">
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-semibold text-ink">
                         {email?.split("@")[0] || "User"}
                       </p>
-                      <p className="text-xs text-gray-500 truncate">
+                      <p className="truncate font-mono text-[11px] text-ink-faint">
                         {email}
                       </p>
                     </div>
@@ -303,9 +279,9 @@ export default function Navbar() {
                     handleSettings();
                     setIsMenuOpen(false);
                   }}
-                  className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 hover:bg-gray-50 transition-colors font-medium"
+                  className="flex w-full items-center gap-3 rounded-xl px-4 py-3 font-medium text-ink-soft transition-colors hover:bg-card hover:text-ink"
                 >
-                  <Settings className="w-5 h-5 text-gray-500" />
+                  <Settings className="h-5 w-5" strokeWidth={1.75} />
                   Settings
                 </button>
                 <button
@@ -313,10 +289,10 @@ export default function Navbar() {
                     handleSignOut();
                     setIsMenuOpen(false);
                   }}
-                  className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 hover:bg-red-50 hover:text-red-600 transition-colors font-medium"
+                  className="flex w-full items-center gap-3 rounded-xl px-4 py-3 font-medium text-ink-soft transition-colors hover:bg-rose/10 hover:text-rose"
                 >
-                  <LogOut className="w-5 h-5" />
-                  Sign Out
+                  <LogOut className="h-5 w-5" strokeWidth={1.75} />
+                  Sign out
                 </button>
               </>
             ) : (
@@ -326,18 +302,18 @@ export default function Navbar() {
                     router.push("/auth");
                     setIsMenuOpen(false);
                   }}
-                  className="w-full px-4 py-3 rounded-xl text-gray-700 hover:bg-gray-50 transition-colors font-medium text-left"
+                  className="w-full rounded-xl px-4 py-3 text-left font-medium text-ink-soft transition-colors hover:bg-card hover:text-ink"
                 >
-                  Sign In
+                  Sign in
                 </button>
                 <button
                   onClick={() => {
                     router.push("/auth");
                     setIsMenuOpen(false);
                   }}
-                  className="w-full px-4 py-3 rounded-full bg-[#f78433] text-white font-semibold text-center hover:bg-[#e57429] transition-colors"
+                  className="w-full rounded-full bg-ink px-4 py-3 text-center font-semibold text-paper transition-colors hover:bg-clay"
                 >
-                  Get Started
+                  Get started
                 </button>
               </div>
             )}

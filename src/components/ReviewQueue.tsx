@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Inbox, Check, X, AlertCircle } from "lucide-react";
 import { authedFetch } from "@/lib/authedFetch";
 
 // Matches what the AI pipeline extracted. The backend serializes these with
@@ -100,28 +101,52 @@ export default function ReviewQueue({ uid }: { uid: string }) {
     }
   };
 
-  if (loading) {
-    return <div>Loading review queue...</div>;
-  }
-
-  if (error) {
-    return <div>Error: {error}</div>;
-  }
-
   return (
-    <div className="bg-[#fc7435] p-4 rounded-2xl">
-      <h2>Review Queue ({reviewQueue.count} pending)</h2>
-      {reviewQueue.emails.length === 0 ? (
-        <p>No pending applications to review.</p>
+    <div className="rounded-2xl border border-dashed border-clay/40 bg-card p-6 lg:p-8">
+      {/* Header */}
+      <div className="mb-5 flex items-center justify-between gap-4 border-b border-dashed border-line pb-4">
+        <div className="flex items-center gap-2.5">
+          <Inbox className="h-4 w-4 text-clay" strokeWidth={2} />
+          <span className="font-mono text-[11px] uppercase tracking-[0.22em] text-ink-soft">
+            Review queue
+          </span>
+        </div>
+        <span className="rounded-full border border-clay/40 bg-clay/10 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.16em] text-clay">
+          {reviewQueue.count} waiting
+        </span>
+      </div>
+
+      {loading ? (
+        <div className="flex items-center gap-3 py-4 text-sm text-ink-soft">
+          <span className="h-4 w-4 animate-spin rounded-full border-2 border-dashed border-clay" />
+          Checking your queue...
+        </div>
+      ) : error ? (
+        <div className="flex items-center gap-3 py-2 text-sm text-rose">
+          <AlertCircle className="h-4 w-4" strokeWidth={2} />
+          {error}
+        </div>
+      ) : reviewQueue.emails.length === 0 ? (
+        <p className="py-2 text-sm leading-relaxed text-ink-soft">
+          Nothing waiting — your inbox is quiet. Anything the AI isn&apos;t sure
+          about will land here for your say-so.
+        </p>
       ) : (
-        <ul>
+        <ul className="divide-y divide-dashed divide-line">
           {reviewQueue.emails.map((email) => (
-            <li key={email.id} className="email-item">
-              <div>
-                <h3>{email.subject}</h3>
-                <p>From: {email.from}</p>
+            <li
+              key={email.id}
+              className="flex flex-col gap-4 py-5 first:pt-1 last:pb-1 sm:flex-row sm:items-center sm:justify-between"
+            >
+              <div className="min-w-0">
+                <h3 className="truncate font-display text-lg text-ink">
+                  {email.subject}
+                </h3>
+                <p className="mt-0.5 truncate font-mono text-[11px] tracking-[0.06em] text-ink-faint">
+                  from {email.from}
+                </p>
                 {email.extractedData && (
-                  <p>
+                  <p className="mt-2 text-sm text-ink-soft">
                     {email.extractedData.CompanyName ?? "Unknown company"}
                     {email.extractedData.Position
                       ? ` — ${email.extractedData.Position}`
@@ -135,9 +160,21 @@ export default function ReviewQueue({ uid }: { uid: string }) {
                   </p>
                 )}
               </div>
-              <div className="actions">
-                <button onClick={() => handleApprove(email.id)}>Approve</button>
-                <button onClick={() => handleReject(email.id)}>Reject</button>
+              <div className="flex shrink-0 gap-2">
+                <button
+                  onClick={() => handleApprove(email.id)}
+                  className="inline-flex items-center gap-1.5 rounded-full bg-ink px-4 py-2 font-mono text-[10px] uppercase tracking-[0.14em] text-paper transition-colors hover:bg-moss"
+                >
+                  <Check className="h-3.5 w-3.5" strokeWidth={2.5} />
+                  Approve
+                </button>
+                <button
+                  onClick={() => handleReject(email.id)}
+                  className="inline-flex items-center gap-1.5 rounded-full border border-line px-4 py-2 font-mono text-[10px] uppercase tracking-[0.14em] text-ink-soft transition-colors hover:border-rose/50 hover:text-rose"
+                >
+                  <X className="h-3.5 w-3.5" strokeWidth={2.5} />
+                  Skip
+                </button>
               </div>
             </li>
           ))}
