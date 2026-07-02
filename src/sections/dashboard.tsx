@@ -1,23 +1,15 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useMemo, useReducer } from "react";
 import { Calendar, Clock, XCircle, RefreshCw } from "lucide-react";
 import { useAuth } from "@/lib/contexts/AuthContext";
 import StatusBadge from "@/components/statusBadge";
 import SunMark from "@/components/SunMark";
-import { authedFetch } from "@/lib/authedFetch";
-
-interface JobApplication {
-  Id: string; // MongoDB _id (capitalized in response)
-  jobNumber: number; // camelCase to match backend
-  userId: string; // camelCase to match backend
-  jobTitle: string; // camelCase to match backend
-  company: string; // camelCase to match backend
-  status: string; // camelCase to match backend
-  applicationDate: string; // camelCase to match backend
-  notes: string; // camelCase to match backend
-  autoStatusUpdated: boolean; // camelCase to match backend
-}
+import {
+  useJobApplicationStore,
+  useAutoRefreshApplications,
+  type JobApplication,
+} from "@/store/jobApplicationStore";
 
 interface DashboardMetrics {
   totalApplications: number;
@@ -47,100 +39,86 @@ const statusTone = (status: string): { dot: string; bar: string } => {
   }
 };
 
+const calculateMetrics = (
+  jobApplications: JobApplication[]
+): DashboardMetrics => {
+  const now = new Date();
+  const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+  const oneMonthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+
+  // Use camelCase field names
+  const statusCounts = jobApplications.reduce((acc, app) => {
+    acc[app.status] = (acc[app.status] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+
+  const applicationsThisWeek = jobApplications.filter(
+    (app) => new Date(app.applicationDate) >= oneWeekAgo
+  ).length;
+
+  const applicationsThisMonth = jobApplications.filter(
+    (app) => new Date(app.applicationDate) >= oneMonthAgo
+  ).length;
+
+  const recentApplications = [...jobApplications]
+    .sort(
+      (a, b) =>
+        new Date(b.applicationDate).getTime() -
+        new Date(a.applicationDate).getTime()
+    )
+    .slice(0, 2);
+
+  // Calculate average response time (simplified - days since application)
+  const averageResponseTime =
+    jobApplications.length > 0
+      ? Math.round(
+          jobApplications.reduce((sum, app) => {
+            const daysSinceApplication =
+              (now.getTime() - new Date(app.applicationDate).getTime()) /
+              (1000 * 60 * 60 * 24);
+            return sum + daysSinceApplication;
+          }, 0) / jobApplications.length
+        )
+      : 0;
+
+  return {
+    totalApplications: jobApplications.length,
+    statusCounts,
+    recentApplications,
+    applicationsThisWeek,
+    applicationsThisMonth,
+    averageResponseTime,
+  };
+};
+
 // Main Dashboard Component
 const JobApplicationDashboard: React.FC = () => {
-  const [applications, setApplications] = useState<JobApplication[]>([]);
-  const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
   const { user, loading: authLoading } = useAuth();
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+  // Shared store: a create/update/delete in the entry list refreshes this list
+  // too, so the dashboard reflects new applications without a page reload.
+  const { applications, loading, error, fetchApplications, lastUpdated } =
+    useJobApplicationStore();
 
   useEffect(() => {
     // Wait for auth to be ready and user to exist
     if (!authLoading && user) {
-      fetchJobApplications();
+      fetchApplications();
     }
   }, [authLoading, user]);
 
-  const fetchJobApplications = async () => {
-    if (!user) return;
+  // Keep the ledger current without a manual refresh — polls in the
+  // background and refetches immediately when this tab regains focus.
+  useAutoRefreshApplications(!authLoading && !!user);
 
-    try {
-      setLoading(true);
-      setError(null);
+  // Ticks the "synced Xm ago" label forward between polls, since a fetch
+  // succeeding is the only other thing that would otherwise trigger a render.
+  const [, forceTick] = useReducer((n: number) => n + 1, 0);
+  useEffect(() => {
+    const id = setInterval(forceTick, 15_000);
+    return () => clearInterval(id);
+  }, []);
 
-      // The backend scopes results to the authenticated user via the JWT.
-      const response = await authedFetch(`${API_BASE_URL}/jobapplications`);
-
-      if (!response.ok) {
-        throw new Error(`Failed to fetch job applications: ${response.status}`);
-      }
-
-      const data: JobApplication[] = await response.json();
-
-      setApplications(data);
-      setMetrics(calculateMetrics(data));
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
-      console.error("Error fetching job applications:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const calculateMetrics = (
-    jobApplications: JobApplication[]
-  ): DashboardMetrics => {
-    const now = new Date();
-    const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-    const oneMonthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-
-    // Use camelCase field names
-    const statusCounts = jobApplications.reduce((acc, app) => {
-      acc[app.status] = (acc[app.status] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
-
-    const applicationsThisWeek = jobApplications.filter(
-      (app) => new Date(app.applicationDate) >= oneWeekAgo
-    ).length;
-
-    const applicationsThisMonth = jobApplications.filter(
-      (app) => new Date(app.applicationDate) >= oneMonthAgo
-    ).length;
-
-    const recentApplications = jobApplications
-      .sort(
-        (a, b) =>
-          new Date(b.applicationDate).getTime() -
-          new Date(a.applicationDate).getTime()
-      )
-      .slice(0, 2);
-
-    // Calculate average response time (simplified - days since application)
-    const averageResponseTime =
-      jobApplications.length > 0
-        ? Math.round(
-            jobApplications.reduce((sum, app) => {
-              const daysSinceApplication =
-                (now.getTime() - new Date(app.applicationDate).getTime()) /
-                (1000 * 60 * 60 * 24);
-              return sum + daysSinceApplication;
-            }, 0) / jobApplications.length
-          )
-        : 0;
-
-    return {
-      totalApplications: jobApplications.length,
-      statusCounts,
-      recentApplications,
-      applicationsThisWeek,
-      applicationsThisMonth,
-      averageResponseTime,
-    };
-  };
+  const metrics = useMemo(() => calculateMetrics(applications), [applications]);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("en-US", {
@@ -150,7 +128,20 @@ const JobApplicationDashboard: React.FC = () => {
     });
   };
 
-  if (loading) {
+  const syncedLabel = (() => {
+    if (!lastUpdated) return null;
+    const seconds = Math.max(0, Math.round((Date.now() - lastUpdated) / 1000));
+    if (seconds < 10) return "Synced just now";
+    if (seconds < 60) return `Synced ${seconds}s ago`;
+    const minutes = Math.round(seconds / 60);
+    if (minutes < 60) return `Synced ${minutes}m ago`;
+    const hours = Math.round(minutes / 60);
+    return `Synced ${hours}h ago`;
+  })();
+
+  // Only blank the screen on the very first load; background refetches (e.g.
+  // after filing an entry) keep the existing ledger visible.
+  if (loading && applications.length === 0) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center bg-paper">
         <div className="flex flex-col items-center text-center">
@@ -166,7 +157,7 @@ const JobApplicationDashboard: React.FC = () => {
     );
   }
 
-  if (error) {
+  if (error && applications.length === 0) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center bg-paper p-6">
         <div className="w-full max-w-md rounded-2xl border border-rose/30 bg-card p-8 text-center">
@@ -178,7 +169,7 @@ const JobApplicationDashboard: React.FC = () => {
           </h3>
           <p className="mb-6 text-ink-soft">{error}</p>
           <button
-            onClick={fetchJobApplications}
+            onClick={fetchApplications}
             className="rounded-full bg-clay px-6 py-3 text-sm font-semibold text-paper transition-colors hover:bg-clay-deep"
           >
             Try again
@@ -187,8 +178,6 @@ const JobApplicationDashboard: React.FC = () => {
       </div>
     );
   }
-
-  if (!metrics) return null;
 
   const metricCards = [
     {
@@ -245,13 +234,47 @@ const JobApplicationDashboard: React.FC = () => {
               The hunt, <em className="text-clay">at a glance</em>.
             </h1>
           </div>
-          <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-ink-faint">
-            {new Date().toLocaleDateString("en-US", {
-              weekday: "long",
-              month: "long",
-              day: "numeric",
-            })}
-          </span>
+          <div className="flex items-center gap-4">
+            <div className="text-right">
+              <span className="block font-mono text-[11px] uppercase tracking-[0.2em] text-ink-faint">
+                {new Date().toLocaleDateString("en-US", {
+                  weekday: "long",
+                  month: "long",
+                  day: "numeric",
+                })}
+              </span>
+              <span className="mt-1.5 flex items-center justify-end gap-1.5 font-mono text-[10px] uppercase tracking-[0.16em] text-ink-faint/80">
+                <span className="relative flex h-1.5 w-1.5">
+                  {!loading && (
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-moss/60" />
+                  )}
+                  <span
+                    className={`relative inline-flex h-1.5 w-1.5 rounded-full ${
+                      loading ? "bg-marigold" : "bg-moss"
+                    }`}
+                  />
+                </span>
+                {loading ? "Syncing..." : syncedLabel ?? "Awaiting first sync"}
+              </span>
+            </div>
+
+            <button
+              onClick={fetchApplications}
+              disabled={loading}
+              title="Refresh the ledger"
+              aria-label="Refresh the ledger"
+              className="group grid h-9 w-9 shrink-0 place-items-center rounded-full border border-line bg-card text-ink-soft transition-colors duration-300 hover:border-clay/50 hover:text-clay disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <RefreshCw
+                className={`h-3.5 w-3.5 ${
+                  loading
+                    ? "animate-spin"
+                    : "transition-transform duration-500 group-hover:rotate-180"
+                }`}
+                strokeWidth={2}
+              />
+            </button>
+          </div>
         </div>
 
         {/* Metrics */}
@@ -367,25 +390,6 @@ const JobApplicationDashboard: React.FC = () => {
               </div>
             )}
           </div>
-        </div>
-
-        {/* Refresh */}
-        <div className="flex justify-center pt-2">
-          <button
-            onClick={fetchJobApplications}
-            disabled={loading}
-            className="group inline-flex items-center gap-2.5 rounded-full border border-line bg-card px-6 py-3 font-mono text-[11px] uppercase tracking-[0.18em] text-ink-soft transition-colors duration-300 hover:border-clay/50 hover:text-clay disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            <RefreshCw
-              className={`h-3.5 w-3.5 ${
-                loading
-                  ? "animate-spin"
-                  : "transition-transform duration-500 group-hover:rotate-180"
-              }`}
-              strokeWidth={2}
-            />
-            Refresh the ledger
-          </button>
         </div>
       </div>
     </div>

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Inbox, Check, X, AlertCircle } from "lucide-react";
 import { authedFetch } from "@/lib/authedFetch";
+import { useJobApplicationStore } from "@/store/jobApplicationStore";
 
 // Matches what the AI pipeline extracted. The backend serializes these with
 // PascalCase keys (PropertyNamingPolicy = null), so mirror that here.
@@ -26,6 +27,9 @@ interface ReviewQueueData {
 }
 
 export default function ReviewQueue({ uid }: { uid: string }) {
+  const fetchApplications = useJobApplicationStore(
+    (state) => state.fetchApplications
+  );
   const [reviewQueue, setReviewQueue] = useState<ReviewQueueData>({
     count: 0,
     emails: [],
@@ -74,8 +78,10 @@ export default function ReviewQueue({ uid }: { uid: string }) {
         throw new Error("Failed to approve application");
       }
 
-      // Refresh the queue after approval
+      // Approving files a new job application — refresh the queue and the
+      // shared applications list so the dashboard/list reflect it immediately.
       fetchReviewQueue();
+      fetchApplications();
     } catch (error) {
       console.error("Error approving application:", error);
       setError("Failed to approve application");
