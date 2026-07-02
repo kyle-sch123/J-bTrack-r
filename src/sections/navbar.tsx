@@ -41,14 +41,13 @@ export default function Navbar() {
     }
   };
 
-  const handleDashboardClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault();
-    if (uid) {
-      router.push("/dashboard");
-    } else {
-      router.push("/auth");
-    }
-  };
+  // Shared by every auth-gated nav link: send signed-out visitors to sign in
+  // instead of the page itself.
+  const handleAuthGatedClick =
+    (href: string) => (e: React.MouseEvent<HTMLAnchorElement>) => {
+      e.preventDefault();
+      router.push(uid ? href : "/auth");
+    };
 
   const handleSettings = () => {
     setIsProfileOpen(false);
@@ -57,6 +56,7 @@ export default function Navbar() {
 
   const navLinks = [
     { href: "/dashboard", label: "Dashboard", requiresAuth: true },
+    { href: "/interviews", label: "Interviews", requiresAuth: true },
     { href: "/#features", label: "Features", requiresAuth: false },
     { href: "/#how-it-works", label: "How it works", requiresAuth: false },
     { href: "/#about", label: "About", requiresAuth: false },
@@ -94,12 +94,12 @@ export default function Navbar() {
             {navLinks.map((link) => {
               const active = isActive(link.href);
 
-              if (link.requiresAuth && link.href === "/dashboard") {
+              if (link.requiresAuth) {
                 return (
                   <Link
                     key={link.href}
                     href={link.href}
-                    onClick={handleDashboardClick}
+                    onClick={handleAuthGatedClick(link.href)}
                     className={desktopLinkClass(active)}
                   >
                     {link.label}
@@ -227,13 +227,13 @@ export default function Navbar() {
           {navLinks.map((link) => {
             const active = isActive(link.href);
 
-            if (link.requiresAuth && link.href === "/dashboard") {
+            if (link.requiresAuth) {
               return (
                 <Link
                   key={link.href}
                   href={link.href}
                   onClick={(e) => {
-                    handleDashboardClick(e);
+                    handleAuthGatedClick(link.href)(e);
                     setIsMenuOpen(false);
                   }}
                   className={mobileLinkClass(active)}

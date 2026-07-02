@@ -18,6 +18,7 @@ import {
   Sparkles,
   ChevronRight,
   AlertCircle,
+  CalendarClock,
 } from "lucide-react";
 
 interface GmailStatusResponse {
@@ -26,6 +27,7 @@ interface GmailStatusResponse {
   connectedAt?: string;
   lastSyncAt?: string;
   lastSyncStatus?: string;
+  hasCalendarScope?: boolean;
 }
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
@@ -367,6 +369,52 @@ function SettingsPageContent() {
                         </span>
                       )}
                     </div>
+                  </div>
+
+                  {/* Calendar sync */}
+                  <div
+                    className={`rounded-xl border p-5 ${
+                      status.hasCalendarScope
+                        ? "border-moss/30 bg-moss/10"
+                        : "border-marigold/30 bg-marigold/10"
+                    }`}
+                  >
+                    <div className="flex flex-wrap items-center justify-between gap-4">
+                      <div className="flex items-center gap-3">
+                        <CalendarClock
+                          className={`h-4.5 w-4.5 ${
+                            status.hasCalendarScope ? "text-moss" : "text-marigold"
+                          }`}
+                          strokeWidth={1.75}
+                        />
+                        <div>
+                          <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-ink-soft">
+                            Calendar sync
+                          </p>
+                          <p className="mt-0.5 font-display text-lg text-ink">
+                            {status.hasCalendarScope
+                              ? "Enabled"
+                              : "Not enabled yet"}
+                          </p>
+                        </div>
+                      </div>
+                      {!status.hasCalendarScope && (
+                        <button
+                          onClick={handleConnect}
+                          disabled={actionLoading}
+                          className="inline-flex shrink-0 items-center gap-2 rounded-full bg-ink px-4 py-2 font-mono text-[10px] uppercase tracking-[0.14em] text-paper transition-colors hover:bg-clay disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                          {actionLoading ? "Reconnecting..." : "Reconnect"}
+                        </button>
+                      )}
+                    </div>
+                    {!status.hasCalendarScope && (
+                      <p className="mt-3 text-sm text-ink-soft">
+                        Reconnect your Google account once to grant Calendar
+                        access — scheduled interviews will then sync to your
+                        calendar automatically.
+                      </p>
+                    )}
                   </div>
 
                   {/* Disconnect */}

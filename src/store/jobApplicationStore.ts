@@ -15,6 +15,14 @@ export interface JobApplication {
   applicationDate: string;
   notes: string;
   autoStatusUpdated: boolean;
+  // AI-powered fields — PascalCase because the backend model added these
+  // without the lowercase-first convention the base fields use above.
+  InterviewDate?: string | null;
+  InterviewType?: string | null;
+  InterviewLocation?: string | null;
+  // Set by the backend once an interview date is synced to Google Calendar;
+  // null if the user hasn't granted Calendar access or there's no interview.
+  CalendarEventId?: string | null;
 }
 
 interface JobApplicationState {
@@ -80,6 +88,39 @@ export const useJobApplicationStore = create<JobApplicationState>((set) => ({
     return inFlight;
   },
 }));
+
+// Fields the Interviews page can set — everything else on the application is
+// carried over unchanged via the spread in `scheduleInterview` below.
+export interface InterviewFields {
+  InterviewDate: string | null;
+  InterviewType: string | null;
+  InterviewLocation: string | null;
+}
+
+// Schedules, reschedules, or clears (InterviewDate: null) an application's
+// interview. The backend syncs the change to Google Calendar (if connected)
+// and returns the authoritative CalendarEventId, which fetchApplications()
+// below then pulls into the shared list for every view.
+export async function scheduleInterview(
+  app: JobApplication,
+  fields: InterviewFields
+): Promise<JobApplication> {
+  const payload = { ...app, ...fields };
+
+  const response = await authedFetch(`${API_BASE_URL}/jobapplication/${app.Id}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to update interview details");
+  }
+
+  const updated: JobApplication = await response.json();
+  await useJobApplicationStore.getState().fetchApplications();
+  return updated;
+}
 
 // Background sync: the backend's email pipeline can file new entries (or the
 // review queue can be approved) without any action on this page, so we can't
