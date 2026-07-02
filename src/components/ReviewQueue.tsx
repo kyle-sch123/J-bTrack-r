@@ -36,13 +36,19 @@ export default function ReviewQueue({ uid }: { uid: string }) {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Ids currently being approved/rejected — drives a per-row spinner instead
+  // of blanking the whole list while one action is in flight.
+  const [processingIds, setProcessingIds] = useState<Set<string>>(new Set());
 
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
-  const fetchReviewQueue = async () => {
+  // `silent` skips the loading flag so background reconciliation (after an
+  // approve/reject already updated the list optimistically) doesn't blank
+  // the queue and flash a spinner over rows the user just acted on.
+  const fetchReviewQueue = async ({ silent = false } = {}) => {
     if (!uid) return;
 
-    setLoading(true);
+    if (!silent) setLoading(true);
     setError(null);
     try {
       const response = await authedFetch(
@@ -57,9 +63,9 @@ export default function ReviewQueue({ uid }: { uid: string }) {
       setReviewQueue(data);
     } catch (error) {
       console.error("Error fetching review queue:", error);
-      setError("Failed to load review queue");
+      if (!silent) setError("Failed to load review queue");
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   };
 
@@ -68,6 +74,8 @@ export default function ReviewQueue({ uid }: { uid: string }) {
   }, [uid]);
 
   const handleApprove = async (emailId: string) => {
+    setProcessingIds((prev) => new Set(prev).add(emailId));
+    setError(null);
     try {
       const response = await authedFetch(
         `${API_BASE_URL}/email-processing/approve/${emailId}`,
@@ -78,17 +86,32 @@ export default function ReviewQueue({ uid }: { uid: string }) {
         throw new Error("Failed to approve application");
       }
 
-      // Approving files a new job application — refresh the queue and the
-      // shared applications list so the dashboard/list reflect it immediately.
-      fetchReviewQueue();
+      // Drop the row instantly rather than waiting on a full requeue —
+      // reconcile with the server quietly in the background afterward.
+      setReviewQueue((prev) => ({
+        count: Math.max(0, prev.count - 1),
+        emails: prev.emails.filter((email) => email.id !== emailId),
+      }));
+
+      // Approving files a new job application — refresh the shared
+      // applications list so the dashboard/list reflect it immediately.
       fetchApplications();
+      fetchReviewQueue({ silent: true });
     } catch (error) {
       console.error("Error approving application:", error);
       setError("Failed to approve application");
+    } finally {
+      setProcessingIds((prev) => {
+        const next = new Set(prev);
+        next.delete(emailId);
+        return next;
+      });
     }
   };
 
   const handleReject = async (emailId: string) => {
+    setProcessingIds((prev) => new Set(prev).add(emailId));
+    setError(null);
     try {
       const response = await authedFetch(
         `${API_BASE_URL}/email-processing/reject/${emailId}`,
@@ -99,11 +122,22 @@ export default function ReviewQueue({ uid }: { uid: string }) {
         throw new Error("Failed to reject application");
       }
 
-      // Refresh the queue after rejection
-      fetchReviewQueue();
+      // Drop the row instantly, then reconcile quietly in the background.
+      setReviewQueue((prev) => ({
+        count: Math.max(0, prev.count - 1),
+        emails: prev.emails.filter((email) => email.id !== emailId),
+      }));
+
+      fetchReviewQueue({ silent: true });
     } catch (error) {
       console.error("Error rejecting application:", error);
       setError("Failed to reject application");
+    } finally {
+      setProcessingIds((prev) => {
+        const next = new Set(prev);
+        next.delete(emailId);
+        return next;
+      });
     }
   };
 
@@ -139,51 +173,60 @@ export default function ReviewQueue({ uid }: { uid: string }) {
         </p>
       ) : (
         <ul className="divide-y divide-dashed divide-line">
-          {reviewQueue.emails.map((email) => (
-            <li
-              key={email.id}
-              className="flex flex-col gap-4 py-5 first:pt-1 last:pb-1 sm:flex-row sm:items-center sm:justify-between"
-            >
-              <div className="min-w-0">
-                <h3 className="truncate font-display text-lg text-ink">
-                  {email.subject}
-                </h3>
-                <p className="mt-0.5 truncate font-mono text-[11px] tracking-[0.06em] text-ink-faint">
-                  from {email.from}
-                </p>
-                {email.extractedData && (
-                  <p className="mt-2 text-sm text-ink-soft">
-                    {email.extractedData.CompanyName ?? "Unknown company"}
-                    {email.extractedData.Position
-                      ? ` — ${email.extractedData.Position}`
-                      : ""}
-                    {email.extractedData.ApplicationStatus
-                      ? ` (${email.extractedData.ApplicationStatus})`
-                      : ""}
-                    {typeof email.extractedData.Confidence === "number"
-                      ? ` · ${Math.round(email.extractedData.Confidence)}% confidence`
-                      : ""}
+          {reviewQueue.emails.map((email) => {
+            const isProcessing = processingIds.has(email.id);
+            return (
+              <li
+                key={email.id}
+                className="flex flex-col gap-4 py-5 first:pt-1 last:pb-1 sm:flex-row sm:items-center sm:justify-between"
+              >
+                <div className="min-w-0">
+                  <h3 className="truncate font-display text-lg text-ink">
+                    {email.subject}
+                  </h3>
+                  <p className="mt-0.5 truncate font-mono text-[11px] tracking-[0.06em] text-ink-faint">
+                    from {email.from}
                   </p>
-                )}
-              </div>
-              <div className="flex shrink-0 gap-2">
-                <button
-                  onClick={() => handleApprove(email.id)}
-                  className="inline-flex items-center gap-1.5 rounded-full bg-ink px-4 py-2 font-mono text-[10px] uppercase tracking-[0.14em] text-paper transition-colors hover:bg-moss"
-                >
-                  <Check className="h-3.5 w-3.5" strokeWidth={2.5} />
-                  Approve
-                </button>
-                <button
-                  onClick={() => handleReject(email.id)}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-line px-4 py-2 font-mono text-[10px] uppercase tracking-[0.14em] text-ink-soft transition-colors hover:border-rose/50 hover:text-rose"
-                >
-                  <X className="h-3.5 w-3.5" strokeWidth={2.5} />
-                  Skip
-                </button>
-              </div>
-            </li>
-          ))}
+                  {email.extractedData && (
+                    <p className="mt-2 text-sm text-ink-soft">
+                      {email.extractedData.CompanyName ?? "Unknown company"}
+                      {email.extractedData.Position
+                        ? ` — ${email.extractedData.Position}`
+                        : ""}
+                      {email.extractedData.ApplicationStatus
+                        ? ` (${email.extractedData.ApplicationStatus})`
+                        : ""}
+                      {typeof email.extractedData.Confidence === "number"
+                        ? ` · ${Math.round(email.extractedData.Confidence)}% confidence`
+                        : ""}
+                    </p>
+                  )}
+                </div>
+                <div className="flex shrink-0 gap-2">
+                  <button
+                    onClick={() => handleApprove(email.id)}
+                    disabled={isProcessing}
+                    className="inline-flex items-center gap-1.5 rounded-full bg-ink px-4 py-2 font-mono text-[10px] uppercase tracking-[0.14em] text-paper transition-colors hover:bg-moss disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {isProcessing ? (
+                      <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-paper/40 border-t-paper" />
+                    ) : (
+                      <Check className="h-3.5 w-3.5" strokeWidth={2.5} />
+                    )}
+                    Approve
+                  </button>
+                  <button
+                    onClick={() => handleReject(email.id)}
+                    disabled={isProcessing}
+                    className="inline-flex items-center gap-1.5 rounded-full border border-line px-4 py-2 font-mono text-[10px] uppercase tracking-[0.14em] text-ink-soft transition-colors hover:border-rose/50 hover:text-rose disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    <X className="h-3.5 w-3.5" strokeWidth={2.5} />
+                    Skip
+                  </button>
+                </div>
+              </li>
+            );
+          })}
         </ul>
       )}
     </div>
